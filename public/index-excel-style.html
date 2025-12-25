@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infor WMS ROI Calculator - Supply Chain Execution</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+        }
+
+        .header {
+            background: #1e3a5f;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            border: 2px solid #1e3a5f;
+            margin: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #1e3a5f;
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .section-content {
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #e8f0f8;
+            font-weight: bold;
+            color: #1e3a5f;
+        }
+
+        .input-cell {
+            background: #ffff99;
+        }
+
+        .input-cell input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .calc-cell {
+            background: #e8f0f8;
+            font-weight: bold;
+        }
+
+        .benchmark-cell {
+            background: #f0f0f0;
+            font-style: italic;
+        }
+
+        .output-cell {
+            background: #0099cc;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .label-cell {
+            background: white;
+            font-weight: normal;
+        }
+
+        .source-cell {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .btn-calculate {
+            background: #0099cc;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px;
+            display: block;
+            width: calc(100% - 40px);
+        }
+
+        .btn-calculate:hover {
+            background: #007aa3;
+        }
+
+        .results-section {
+            display: none;
+            margin: 20px;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th {
+            background: #0099cc;
+            color: white;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .results-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .results-table .category-name {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .results-table .value-conservative {
+            background: #e8f4f8;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .results-table .value-likely {
+            background: #0099cc;
+            color: white;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .total-row td {
+            background: #333;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        @media print {
+            .btn-calculate {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Supply Chain Execution (SCE)</h1>
+            <p>INPUT & CALCULATIONS - ALL FINANCIAL VALUES FROM THIS POINT FORWARD ARE IN $ SINGLE UNITS</p>
+        </div>
+
+        <div class="error" id="errorMessage"></div>
+
+        <form id="roiForm">
+            <!-- Section 1: Improved Management & Administration Productivity (Manufacturing) -->
+            <div class="section">
+                <div class="section-header">Improved Management & Administration Productivity</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of managers, supervisors & administration</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="mfgManagers" name="mfgManagers" min="0" value="15" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="mfgManagerCost" name="mfgManagerCost" min="0" step="1000" value="62500" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total FTE cost</td>
+                            <td class="calc-cell" id="mfgTotalCost">$0</td>
+                            <td class="calc-cell" id="mfgTotalCost2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Reduction in employee time<br><span class="help-text">Due to a single consolidated system and a friendlier easier to use generation</span></td>
+                            <td class="benchmark-cell">11%</td>
+                            <td class="benchmark-cell">14%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="mfgAdminBenefit1">$0</td>
+                            <td class="output-cell" id="mfgAdminBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 2: Increased Workforce Productivity -->
+            <div class="section">
+                <div class="section-header">Increased Workforce Productivity</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of shop floor FTE's (other than managers, supervisors & administration)</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="shopFloorFTEs" name="shopFloorFTEs" min="0" value="420" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="shopFloorCost" name="shopFloorCost" min="0" step="1000" value="30000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total direct manufacturing labour cost per year</td>
+                            <td class="calc-cell" id="shopFloorTotal">$0</td>
+                            <td class="calc-cell" id="shopFloorTotal2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Reduction in employee time<br><span class="help-text">Due to a single consolidated system and a friendlier easier to use generation</span></td>
+                            <td class="benchmark-cell">11%</td>
+                            <td class="benchmark-cell">14%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="workforceBenefit1">$0</td>
+                            <td class="output-cell" id="workforceBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 3: Improved Capacity Utilisation and Throughput -->
+            <div class="section">
+                <div class="section-header">Improved Capacity Utilisation and Throughput</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Annual Revenue</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="annualRevenue" name="annualRevenue" min="0" step="1000" value="100000000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Operating Margin / Profitability %</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="operatingMargin" name="operatingMargin" min="0" max="100" step="0.1" value="4.5" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Projected increase in revenue<br><span class="help-text">Due to improved on-time delivery performance, marketing and more responsive maintenance systems</span></td>
+                            <td class="benchmark-cell">12%</td>
+                            <td class="benchmark-cell">38%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="capacityBenefit1">$0</td>
+                            <td class="output-cell" id="capacityBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 4: Reduction of Scrapped Materials -->
+            <div class="section">
+                <div class="section-header">Reduction of Scrapped Materials</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Annual value of Production Waste</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="annualWasteCost" name="annualWasteCost" min="0" step="1000" value="500000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Projected reduction<br><span class="help-text">Due to improved set up and adherence to procedures, performance monitoring and scheduling closer making</span></td>
+                            <td class="benchmark-cell">13%</td>
+                            <td class="benchmark-cell">16%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="wasteBenefit1">$0</td>
+                            <td class="output-cell" id="wasteBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 5: Improved Management & Administration Productivity (Warehouse) -->
+            <div class="section">
+                <div class="section-header">Improved Management & Administration Productivity (Warehouse)</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of managers, stock controllers & administration</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="warehouseManagers" name="warehouseManagers" min="0" value="10" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="warehouseManagerCost" name="warehouseManagerCost" min="0" step="1000" value="90000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total FTE cost to manage warehouse activities</td>
+                            <td class="calc-cell" id="whMgrTotal">$0</td>
+                            <td class="calc-cell" id="whMgrTotal2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Reduction in employee time<br><span class="help-text">Due to reduced inventory management and a friendlier easier to use generation</span></td>
+                            <td class="benchmark-cell">11%</td>
+                            <td class="benchmark-cell">14%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="whAdminBenefit1">$0</td>
+                            <td class="output-cell" id="whAdminBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 6: Reduced Direct Labour Costs -->
+            <div class="section">
+                <div class="section-header">Reduced Direct Labour Costs</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of warehouse employees (not management or administration)</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="warehouseEmployees" name="warehouseEmployees" min="0" value="400" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="warehouseEmployeeCost" name="warehouseEmployeeCost" min="0" step="1000" value="30000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total direct warehouse labour cost per year</td>
+                            <td class="calc-cell" id="whEmpTotal">$0</td>
+                            <td class="calc-cell" id="whEmpTotal2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Reduction in employee time<br><span class="help-text">Due to improved processes, automation, and system efficiency</span></td>
+                            <td class="benchmark-cell">8.6%</td>
+                            <td class="benchmark-cell">12.6%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="labourBenefit1">$0</td>
+                            <td class="output-cell" id="labourBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 7: Reduction in Transportation & Logistics Costs -->
+            <div class="section">
+                <div class="section-header">Reduction in Transportation & Logistics Costs</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total annual transportation & logistics costs</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="annualLogisticsCost" name="annualLogisticsCost" min="0" step="1000" value="2000000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Projected reduction<br><span class="help-text">Due to more predictable order volumes and better transport resource optimization</span></td>
+                            <td class="benchmark-cell">20%</td>
+                            <td class="benchmark-cell">40%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell">Infor improvement benchmark</td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="logisticsBenefit1">$0</td>
+                            <td class="output-cell" id="logisticsBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <button type="button" class="btn-calculate" onclick="calculateROI()">Calculate ROI</button>
+        </form>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div class="section">
+                <div class="section-header">Supply Chain Execution (SCE) - Results</div>
+                <div class="section-content">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Output (All figures are in $ Single Units)</th>
+                                <th style="width: 25%; background: #0099cc;">Conservative Estimate</th>
+                                <th style="width: 25%; background: #0099cc;">Likely Estimate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="total-row">
+                                <td>Total Projected Benefits</td>
+                                <td id="totalConservative" style="text-align: right;">$0</td>
+                                <td id="totalLikely" style="text-align: right;">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Improved Management & Administration Productivity</td>
+                                <td class="value-conservative" id="result-mfgAdmin-cons">$0</td>
+                                <td class="value-likely" id="result-mfgAdmin-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Increased Workforce Productivity</td>
+                                <td class="value-conservative" id="result-workforce-cons">$0</td>
+                                <td class="value-likely" id="result-workforce-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Improved Capacity Utilisation and Throughput</td>
+                                <td class="value-conservative" id="result-capacity-cons">$0</td>
+                                <td class="value-likely" id="result-capacity-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Reduction of Scrapped Materials</td>
+                                <td class="value-conservative" id="result-waste-cons">$0</td>
+                                <td class="value-likely" id="result-waste-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Improved Management & Administration Productivity</td>
+                                <td class="value-conservative" id="result-whAdmin-cons">$0</td>
+                                <td class="value-likely" id="result-whAdmin-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Reduced Direct Labour Costs</td>
+                                <td class="value-conservative" id="result-labour-cons">$0</td>
+                                <td class="value-likely" id="result-labour-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Reduction in Transportation & Logistics Costs</td>
+                                <td class="value-conservative" id="result-logistics-cons">$0</td>
+                                <td class="value-likely" id="result-logistics-likely">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app-excel-style.js"></script>
+</body>
+</html>

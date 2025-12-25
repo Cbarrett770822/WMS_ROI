@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Connection Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .test-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .test-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result h2 {
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .result pre {
+            background: rgba(0,0,0,0.05);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+
+        .stats {
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-item strong {
+            display: inline-block;
+            width: 150px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .nav-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Database Connection Test</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Test your MongoDB Atlas connection and view database statistics
+        </p>
+
+        <button class="test-btn" onclick="testConnection()" id="testBtn">
+            🚀 Test Database Connection
+        </button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Testing connection...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <a href="index.html" class="nav-link">← Back to Assessment</a>
+    </div>
+
+    <script>
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:8888/.netlify/functions'
+            : '/.netlify/functions';
+
+        async function testConnection() {
+            const btn = document.getElementById('testBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+
+            // Reset UI
+            btn.disabled = true;
+            loading.classList.add('show');
+            result.classList.remove('show', 'success', 'error');
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_URL}/test-connection`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displaySuccess(data);
+                } else {
+                    displayError(data);
+                }
+
+            } catch (error) {
+                displayError({
+                    error: 'Connection Failed',
+                    message: error.message,
+                    details: {
+                        name: error.name
+                    }
+                });
+            } finally {
+                btn.disabled = false;
+                loading.classList.remove('show');
+            }
+        }
+
+        function displaySuccess(data) {
+            const result = document.getElementById('result');
+            result.className = 'result success show';
+
+            let html = `
+                <h2>✅ Connection Successful!</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong>Status:</strong> Connected
+                    </div>
+                    <div class="stat-item">
+                        <strong>Total Assessments:</strong> ${data.stats.totalAssessments}
+                    </div>
+                    <div class="stat-item">
+                        <strong>Test Time:</strong> ${new Date(data.timestamp).toLocaleString()}
+                    </div>
+            `;
+
+            if (data.stats.latestAssessment) {
+                html += `
+                    <div class="stat-item">
+                        <strong>Latest Assessment:</strong>
+                        <div style="margin-top: 10px; padding-left: 20px;">
+                            <div>Company: ${data.stats.latestAssessment.company}</div>
+                            <div>Email: ${data.stats.latestAssessment.email}</div>
+                            <div>Date: ${new Date(data.stats.latestAssessment.date).toLocaleString()}</div>
+                            <div>Savings: $${data.stats.latestAssessment.savings.toLocaleString()}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `
+                </div>
+                <p style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 5px;">
+                    <strong>✓ Database is ready!</strong><br>
+                    Your MongoDB Atlas connection is working correctly. You can now create and retrieve assessments.
+                </p>
+            `;
+
+            result.innerHTML = html;
+        }
+
+        function displayError(data) {
+            const result = document.getElementById('result');
+            result.className = 'result error show';
+
+            let troubleshooting = '';
+            
+            if (data.message && data.message.includes('authentication')) {
+                troubleshooting = `
+                    <p style="margin-top: 15px;"><strong>💡 Troubleshooting:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Check your username and password in MONGODB_URI</li>
+                        <li>Ensure the database user has read/write permissions</li>
+                        <li>Verify the database name is correct</li>
+                    </ul>
+                `;
+            } else if (data.message && (data.message.includes('ENOTFOUND') || data.message.includes('timeout'))) {
+                troubleshooting = `
+                    <p style="margin-top: 15px;"><strong>💡 Troubleshooting:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Check your internet connection</li>
+                        <li>Verify the MongoDB Atlas cluster URL</li>
+                        <li>Check IP whitelist in MongoDB Atlas (add 0.0.0.0/0 for testing)</li>
+                        <li>Ensure the cluster is running</li>
+                    </ul>
+                `;
+            } else {
+                troubleshooting = `
+                    <p style="margin-top: 15px;"><strong>💡 Troubleshooting:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Verify MONGODB_URI environment variable is set</li>
+                        <li>Check Netlify function logs for detailed errors</li>
+                        <li>Ensure MongoDB Atlas cluster is accessible</li>
+                    </ul>
+                `;
+            }
+
+            result.innerHTML = `
+                <h2>❌ Connection Failed</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <strong>Error:</strong> ${data.error || 'Unknown error'}
+                    </div>
+                    <div class="stat-item">
+                        <strong>Message:</strong> ${data.message || 'No details available'}
+                    </div>
+                    ${data.details ? `
+                        <div class="stat-item">
+                            <strong>Type:</strong> ${data.details.name || 'Unknown'}
+                        </div>
+                    ` : ''}
+                </div>
+                ${troubleshooting}
+            `;
+        }
+
+        // Auto-test on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            // Uncomment to auto-test on load
+            // testConnection();
+        });
+    </script>
+</body>
+</html>

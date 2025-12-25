@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMS ROI Assessments - Infor Supply Chain Execution</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .search-bar button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .assessments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .assessment-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .assessment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+            border-color: #667eea;
+        }
+
+        .assessment-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .assessment-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .assessment-info span {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .assessment-info strong {
+            color: #333;
+        }
+
+        .roi-highlight {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .roi-highlight .label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .roi-highlight .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f8f9fa;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #666;
+        }
+
+        .close-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .detail-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-item label {
+            font-size: 0.85rem;
+            color: #666;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .detail-item value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .assessments-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Past Assessments</h1>
+            <p>View and compare your previous WMS ROI calculations</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html">← New Assessment</a>
+        </div>
+
+        <div class="card">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by company name or email...">
+                <button onclick="searchAssessments()">Search</button>
+                <button onclick="loadAssessments()">Refresh</button>
+            </div>
+
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading assessments...</p>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h2>No Assessments Found</h2>
+                <p>Create your first assessment to see results here.</p>
+                <a href="roi-form.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Create Assessment →</a>
+            </div>
+
+            <div id="assessmentsGrid" class="assessments-grid"></div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/.netlify/functions';
+
+        let allAssessments = [];
+
+        // Load assessments on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadAssessments();
+        });
+
+        async function loadAssessments() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('assessmentsGrid').innerHTML = '';
+
+            try {
+                const response = await fetch(`${API_URL}/list-assessments?limit=100`);
+                const result = await response.json();
+
+                if (result.success && result.assessments.length > 0) {
+                    allAssessments = result.assessments;
+                    displayAssessments(allAssessments);
+                } else {
+                    document.getElementById('emptyState').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading assessments:', error);
+                alert('Failed to load assessments. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function displayAssessments(assessments) {
+            const grid = document.getElementById('assessmentsGrid');
+            grid.innerHTML = '';
+
+            assessments.forEach(assessment => {
+                const card = createAssessmentCard(assessment);
+                grid.appendChild(card);
+            });
+        }
+
+        function createAssessmentCard(assessment) {
+            const card = document.createElement('div');
+            card.className = 'assessment-card';
+            card.onclick = () => showDetails(assessment);
+
+            const date = new Date(assessment.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            card.innerHTML = `
+                <h3>${assessment.companyName}</h3>
+                <div class="assessment-info">
+                    <span><strong>Email:</strong> ${assessment.contactEmail}</span>
+                    <span><strong>Date:</strong> ${date}</span>
+                    <span><strong>Warehouse Employees:</strong> ${assessment.warehouseEmployees || 0}</span>
+                    <span><strong>Revenue:</strong> ${formatCurrency(assessment.annualRevenue || 0)}</span>
+                </div>
+                <div class="roi-highlight">
+                    <div class="label">Total Annual Savings</div>
+                    <div class="value">${formatCurrency(assessment.roiResults.totalAnnualSavings)}</div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        function searchAssessments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayAssessments(allAssessments);
+                return;
+            }
+
+            const filtered = allAssessments.filter(a => 
+                a.companyName.toLowerCase().includes(searchTerm) ||
+                a.contactEmail.toLowerCase().includes(searchTerm)
+            );
+
+            if (filtered.length > 0) {
+                displayAssessments(filtered);
+            } else {
+                document.getElementById('assessmentsGrid').innerHTML = 
+                    '<div class="empty-state"><h2>No Results Found</h2><p>Try a different search term.</p></div>';
+            }
+        }
+
+        function showDetails(assessment) {
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('modalContent');
+
+            const date = new Date(assessment.createdAt).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            content.innerHTML = `
+                <h2 style="color: #667eea; margin-bottom: 20px;">${assessment.companyName}</h2>
+                
+                <div class="detail-section">
+                    <h3>📋 Company Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Contact Email</label>
+                            <value>${assessment.contactEmail}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Assessment Date</label>
+                            <value>${date}</value>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>💼 Business Metrics</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Annual Revenue</label>
+                            <value>${formatCurrency(assessment.annualRevenue || 0)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Operating Margin</label>
+                            <value>${assessment.operatingMargin || 0}%</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Warehouse Employees</label>
+                            <value>${assessment.numberOfEmployees}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Daily Orders</label>
+                            <value>${assessment.dailyOrderVolume.toLocaleString()}</value>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📦 Operations Metrics</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Pick Accuracy</label>
+                            <value>${assessment.currentPickAccuracy}%</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Avg Pick Time</label>
+                            <value>${assessment.averagePickTime}s</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Inventory Turnover</label>
+                            <value>${assessment.inventoryTurnover}x/year</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Space Utilization</label>
+                            <value>${assessment.spaceUtilization}%</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Labor Cost</label>
+                            <value>${assessment.laborCostPercentage}%</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Overtime</label>
+                            <value>${assessment.overtimePercentage}%</value>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>💰 ROI Results</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <label style="color: rgba(255,255,255,0.9);">Total Annual Savings</label>
+                            <value style="color: white; font-size: 1.5rem;">${formatCurrency(assessment.roiResults.totalAnnualSavings)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Implementation Cost</label>
+                            <value>${formatCurrency(assessment.roiResults.implementationCost)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Payback Period</label>
+                            <value>${assessment.roiResults.paybackPeriod} months</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>3-Year ROI</label>
+                            <value>${assessment.roiResults.threeYearROI}%</value>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>📊 Savings Breakdown</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <label>Labor Efficiency</label>
+                            <value>${formatCurrency(assessment.roiResults.laborSavings)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Overtime Reduction</label>
+                            <value>${formatCurrency(assessment.roiResults.overtimeSavings)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Space Optimization</label>
+                            <value>${formatCurrency(assessment.roiResults.spaceSavings)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Accuracy Improvement</label>
+                            <value>${formatCurrency(assessment.roiResults.accuracyImprovement)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Inventory Optimization</label>
+                            <value>${formatCurrency(assessment.roiResults.inventorySavings)}</value>
+                        </div>
+                        <div class="detail-item">
+                            <label>Productivity Gain</label>
+                            <value>${formatCurrency(assessment.roiResults.productivityGain)}</value>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h3>⚠️ Challenges Identified</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                        <ul style="margin-left: 20px;">
+                            ${assessment.primaryChallenges.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                        <p style="margin-top: 15px;"><strong>Technology Gaps:</strong></p>
+                        <p style="color: #666;">${assessment.technologyGaps}</p>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', (e) => {
+            if (e.target.id === 'detailModal') {
+                closeModal();
+            }
+        });
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchAssessments();
+            }
+        });
+    </script>
+</body>
+</html>

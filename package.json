@@ -1,0 +1,22 @@
+{
+  "name": "wms-roi-assessment",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Build complete'",
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.2.3",
+    "jsonwebtoken": "^9.0.0",
+    "mongodb": "^5.5.0",
+    "mongoose": "^7.1.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
