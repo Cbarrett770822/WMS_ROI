@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f5;
             min-height: 100vh;
             padding: 20px;
         }
@@ -25,7 +25,7 @@
 
         .header {
             text-align: center;
-            color: white;
+            color: #333;
             margin-bottom: 40px;
         }
 
@@ -43,14 +43,14 @@
             color: white;
             text-decoration: none;
             padding: 10px 20px;
-            background: rgba(255,255,255,0.2);
+            background: #333;
             border-radius: 8px;
             margin: 0 10px;
             transition: background 0.3s;
         }
 
         .nav-links a:hover {
-            background: rgba(255,255,255,0.3);
+            background: #000;
         }
 
         .card {
@@ -77,12 +77,16 @@
 
         .search-bar button {
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #333;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
+        }
+
+        .search-bar button:hover {
+            background: #000;
         }
 
         .assessments-grid {
@@ -102,12 +106,12 @@
 
         .assessment-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
-            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            border-color: #333;
         }
 
         .assessment-card h3 {
-            color: #667eea;
+            color: #333;
             margin-bottom: 10px;
             font-size: 1.2rem;
         }
@@ -129,7 +133,7 @@
         }
 
         .roi-highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #333;
             color: white;
             padding: 15px;
             border-radius: 8px;
@@ -155,7 +159,7 @@
 
         .spinner {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border-top: 4px solid #333;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -175,7 +179,7 @@
         }
 
         .empty-state h2 {
-            color: #667eea;
+            color: #333;
             margin-bottom: 10px;
         }
 
@@ -232,9 +236,9 @@
         }
 
         .detail-section h3 {
-            color: #667eea;
+            color: #333;
             margin-bottom: 15px;
-            border-bottom: 2px solid #667eea;
+            border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
 
@@ -273,12 +277,11 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Past Assessments</h1>
-            <p>View and compare your previous WMS ROI calculations</p>
+            <h1>WMS ROI Assessments</h1>
         </div>
 
         <div class="nav-links">
-            <a href="index.html">← New Assessment</a>
+            <a href="roi-form.html" style="background: #333; font-weight: bold; font-size: 1.1rem; padding: 15px 30px;">+ New ROI Assessment</a>
         </div>
 
         <div class="card">
@@ -296,7 +299,7 @@
             <div id="emptyState" class="empty-state" style="display: none;">
                 <h2>No Assessments Found</h2>
                 <p>Create your first assessment to see results here.</p>
-                <a href="roi-form.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Create Assessment →</a>
+                <a href="roi-form.html" style="color: #333; text-decoration: none; font-weight: 600;">Create Assessment →</a>
             </div>
 
             <div id="assessmentsGrid" class="assessments-grid"></div>
@@ -357,7 +360,7 @@
         function createAssessmentCard(assessment) {
             const card = document.createElement('div');
             card.className = 'assessment-card';
-            card.onclick = () => showDetails(assessment);
+            card.onclick = () => window.location.href = `roi-form.html?id=${assessment._id}`;
 
             const date = new Date(assessment.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -365,17 +368,38 @@
                 day: 'numeric'
             });
 
+            // Handle both old questionnaire format and new ROI format
+            let totalSavings = 'N/A';
+            let companyName = 'Unknown Company';
+            let contactEmail = 'N/A';
+
+            if (assessment.roiResults && assessment.roiResults.likely) {
+                totalSavings = assessment.roiResults.likely.totalAnnualSavings.toLocaleString();
+            }
+
+            if (assessment.companyName) {
+                companyName = assessment.companyName;
+            } else if (assessment.company && typeof assessment.company === 'object' && assessment.company.name) {
+                companyName = assessment.company.name;
+            }
+
+            if (assessment.contactEmail) {
+                contactEmail = assessment.contactEmail;
+            } else if (assessment.company && typeof assessment.company === 'object' && assessment.company.email) {
+                contactEmail = assessment.company.email;
+            }
+
             card.innerHTML = `
-                <h3>${assessment.companyName}</h3>
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                    <h3 style="margin: 0;">${companyName}</h3>
+                    <button onclick="deleteAssessment('${assessment._id}', event)" style="background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">Delete</button>
+                </div>
                 <div class="assessment-info">
-                    <span><strong>Email:</strong> ${assessment.contactEmail}</span>
                     <span><strong>Date:</strong> ${date}</span>
-                    <span><strong>Warehouse Employees:</strong> ${assessment.warehouseEmployees || 0}</span>
-                    <span><strong>Revenue:</strong> ${formatCurrency(assessment.annualRevenue || 0)}</span>
                 </div>
                 <div class="roi-highlight">
                     <div class="label">Total Annual Savings</div>
-                    <div class="value">${formatCurrency(assessment.roiResults.totalAnnualSavings)}</div>
+                    <div class="value">$${totalSavings}</div>
                 </div>
             `;
 
@@ -391,8 +415,7 @@
             }
 
             const filtered = allAssessments.filter(a => 
-                a.companyName.toLowerCase().includes(searchTerm) ||
-                a.contactEmail.toLowerCase().includes(searchTerm)
+                a.companyName.toLowerCase().includes(searchTerm)
             );
 
             if (filtered.length > 0) {
@@ -416,15 +439,11 @@
             });
 
             content.innerHTML = `
-                <h2 style="color: #667eea; margin-bottom: 20px;">${assessment.companyName}</h2>
+                <h2 style="color: #333; margin-bottom: 20px;">${assessment.companyName}</h2>
                 
                 <div class="detail-section">
                     <h3>📋 Company Information</h3>
                     <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Contact Email</label>
-                            <value>${assessment.contactEmail}</value>
-                        </div>
                         <div class="detail-item">
                             <label>Assessment Date</label>
                             <value>${date}</value>
@@ -445,96 +464,127 @@
                         </div>
                         <div class="detail-item">
                             <label>Warehouse Employees</label>
-                            <value>${assessment.numberOfEmployees}</value>
+                            <value>${assessment.numberOfEmployees || assessment.warehouseEmployees || 'N/A'}</value>
                         </div>
                         <div class="detail-item">
                             <label>Daily Orders</label>
-                            <value>${assessment.dailyOrderVolume.toLocaleString()}</value>
+                            <value>${assessment.dailyOrderVolume ? assessment.dailyOrderVolume.toLocaleString() : 'N/A'}</value>
                         </div>
                     </div>
                 </div>
 
+                ${assessment.currentPickAccuracy || assessment.averagePickTime || assessment.inventoryTurnover ? `
                 <div class="detail-section">
                     <h3>📦 Operations Metrics</h3>
                     <div class="detail-grid">
-                        <div class="detail-item">
+                        ${assessment.currentPickAccuracy ? `<div class="detail-item">
                             <label>Pick Accuracy</label>
                             <value>${assessment.currentPickAccuracy}%</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.averagePickTime ? `<div class="detail-item">
                             <label>Avg Pick Time</label>
                             <value>${assessment.averagePickTime}s</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.inventoryTurnover ? `<div class="detail-item">
                             <label>Inventory Turnover</label>
                             <value>${assessment.inventoryTurnover}x/year</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.spaceUtilization ? `<div class="detail-item">
                             <label>Space Utilization</label>
                             <value>${assessment.spaceUtilization}%</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.laborCostPercentage ? `<div class="detail-item">
                             <label>Labor Cost</label>
                             <value>${assessment.laborCostPercentage}%</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.overtimePercentage ? `<div class="detail-item">
                             <label>Overtime</label>
                             <value>${assessment.overtimePercentage}%</value>
-                        </div>
+                        </div>` : ''}
                     </div>
-                </div>
+                </div>` : ''}
 
+                ${assessment.roiResults ? `
                 <div class="detail-section">
                     <h3>💰 ROI Results</h3>
                     <div class="detail-grid">
-                        <div class="detail-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <div class="detail-item" style="background: #333; color: white;">
                             <label style="color: rgba(255,255,255,0.9);">Total Annual Savings</label>
-                            <value style="color: white; font-size: 1.5rem;">${formatCurrency(assessment.roiResults.totalAnnualSavings)}</value>
+                            <value style="color: white; font-size: 1.5rem;">${formatCurrency(assessment.roiResults.totalAnnualSavings || 0)}</value>
                         </div>
-                        <div class="detail-item">
+                        ${assessment.roiResults.implementationCost ? `<div class="detail-item">
                             <label>Implementation Cost</label>
                             <value>${formatCurrency(assessment.roiResults.implementationCost)}</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.paybackPeriod ? `<div class="detail-item">
                             <label>Payback Period</label>
                             <value>${assessment.roiResults.paybackPeriod} months</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.threeYearROI ? `<div class="detail-item">
                             <label>3-Year ROI</label>
                             <value>${assessment.roiResults.threeYearROI}%</value>
-                        </div>
+                        </div>` : ''}
                     </div>
-                </div>
+                </div>` : ''}
 
+                ${assessment.roiResults && (assessment.roiResults.laborSavings || assessment.roiResults.mfgAdminSavings) ? `
                 <div class="detail-section">
                     <h3>📊 Savings Breakdown</h3>
                     <div class="detail-grid">
-                        <div class="detail-item">
+                        ${assessment.roiResults.mfgAdminSavings ? `<div class="detail-item">
+                            <label>Mfg Admin Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.mfgAdminSavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.workforceSavings ? `<div class="detail-item">
+                            <label>Workforce Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.workforceSavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.capacitySavings ? `<div class="detail-item">
+                            <label>Capacity Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.capacitySavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.wasteSavings ? `<div class="detail-item">
+                            <label>Waste Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.wasteSavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.warehouseAdminSavings ? `<div class="detail-item">
+                            <label>Warehouse Admin Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.warehouseAdminSavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.labourSavings ? `<div class="detail-item">
+                            <label>Labour Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.labourSavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.logisticsSavings ? `<div class="detail-item">
+                            <label>Logistics Savings</label>
+                            <value>${formatCurrency(assessment.roiResults.logisticsSavings)}</value>
+                        </div>` : ''}
+                        ${assessment.roiResults.laborSavings ? `<div class="detail-item">
                             <label>Labor Efficiency</label>
                             <value>${formatCurrency(assessment.roiResults.laborSavings)}</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.overtimeSavings ? `<div class="detail-item">
                             <label>Overtime Reduction</label>
                             <value>${formatCurrency(assessment.roiResults.overtimeSavings)}</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.spaceSavings ? `<div class="detail-item">
                             <label>Space Optimization</label>
                             <value>${formatCurrency(assessment.roiResults.spaceSavings)}</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.accuracyImprovement ? `<div class="detail-item">
                             <label>Accuracy Improvement</label>
                             <value>${formatCurrency(assessment.roiResults.accuracyImprovement)}</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.inventorySavings ? `<div class="detail-item">
                             <label>Inventory Optimization</label>
                             <value>${formatCurrency(assessment.roiResults.inventorySavings)}</value>
-                        </div>
-                        <div class="detail-item">
+                        </div>` : ''}
+                        ${assessment.roiResults.productivityGain ? `<div class="detail-item">
                             <label>Productivity Gain</label>
                             <value>${formatCurrency(assessment.roiResults.productivityGain)}</value>
-                        </div>
+                        </div>` : ''}
                     </div>
-                </div>
+                </div>` : ''}
 
                 <div class="detail-section">
                     <h3>⚠️ Challenges Identified</h3>
@@ -562,6 +612,29 @@
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(amount);
+        }
+
+        async function deleteAssessment(id, event) {
+            event.stopPropagation();
+            if (!confirm('Delete this assessment?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/delete-assessment?id=${id}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Assessment deleted successfully!');
+                    loadAssessments(); // Reload the list
+                } else {
+                    alert('Failed to delete assessment: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error deleting assessment:', error);
+                alert('Failed to delete assessment. Please try again.');
+            }
         }
 
         // Close modal when clicking outside

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Past Assessments - WMS ROI</title>
+    <title>Infor WMS ROI Calculator - Supply Chain Execution</title>
     <style>
         * {
             margin: 0;
@@ -12,570 +12,894 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
             padding: 20px;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
+            background: white;
         }
 
         .header {
-            text-align: center;
+            background: #333;
             color: white;
-            margin-bottom: 40px;
+            padding: 20px;
+            text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
         }
 
-        .nav-links {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 8px;
-            margin: 0 10px;
-            transition: background 0.3s;
-        }
-
-        .nav-links a:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .search-bar {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-
-        .search-bar button {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .assessments-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 20px;
-        }
-
-        .assessment-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .assessment-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
-            border-color: #667eea;
-        }
-
-        .assessment-card h3 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-        }
-
-        .assessment-info {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 15px;
-        }
-
-        .assessment-info span {
+        .header p {
             font-size: 0.9rem;
-            color: #666;
-        }
-
-        .assessment-info strong {
-            color: #333;
-        }
-
-        .roi-highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .roi-highlight .label {
-            font-size: 0.8rem;
             opacity: 0.9;
         }
 
-        .roi-highlight .value {
-            font-size: 1.5rem;
+        .section {
+            border: 2px solid #333;
+            margin: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #333;
+            color: white;
+            padding: 12px 15px;
             font-weight: bold;
-            margin-top: 5px;
+            font-size: 1.1rem;
         }
 
-        .loading {
+        .section-content {
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #f0f0f0;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .input-cell {
+            background: #ffff99;
+        }
+
+        .input-cell input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .calc-cell {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .benchmark-cell {
+            background: #f0f0f0;
+            font-style: italic;
+        }
+
+        .output-cell {
+            background: #666;
+            color: white;
+            font-weight: bold;
             text-align: center;
-            padding: 40px;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+        .label-cell {
+            background: white;
+            font-weight: normal;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
+        .source-cell {
+            font-size: 0.85rem;
             color: #666;
         }
 
-        .empty-state h2 {
-            color: #667eea;
-            margin-bottom: 10px;
+        .btn-calculate {
+            background: #333;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 20px;
+            display: block;
+            width: calc(100% - 40px);
         }
 
-        .modal {
+        .btn-calculate:hover {
+            background: #007aa3;
+        }
+
+        .results-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+
+        .results-section.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .benchmark-link {
+            color: #333;
+            text-decoration: underline;
+            cursor: pointer;
+            font-style: italic;
+        }
+
+        .benchmark-link:hover {
+            color: #000;
+            font-weight: bold;
+        }
+
+        .benchmark-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 1000;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 30px;
-            max-width: 900px;
             width: 100%;
-            max-height: 90vh;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .benchmark-modal.show {
+            display: flex;
+        }
+
+        .benchmark-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            max-height: 80vh;
             overflow-y: auto;
-            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .close-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: #f8f9fa;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.5rem;
-            color: #666;
-        }
-
-        .close-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .detail-section {
-            margin-bottom: 30px;
-        }
-
-        .detail-section h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #667eea;
+        .benchmark-modal-content h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #333;
             padding-bottom: 10px;
         }
 
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+        .benchmark-modal-content .close-btn {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #666;
         }
 
-        .detail-item {
-            background: #f8f9fa;
+        .benchmark-modal-content .close-btn:hover {
+            color: #000;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th {
+            background: #333;
+            color: white;
             padding: 15px;
-            border-radius: 8px;
+            font-size: 1.1rem;
         }
 
-        .detail-item label {
+        .results-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .results-table .category-name {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .results-table .value-conservative {
+            background: #f0f0f0;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .results-table .value-likely {
+            background: #666;
+            color: white;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .total-row td {
+            background: #333;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .help-text {
             font-size: 0.85rem;
             color: #666;
+            font-style: italic;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .error.show {
             display: block;
-            margin-bottom: 5px;
         }
 
-        .detail-item value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        @media (max-width: 768px) {
-            .assessments-grid {
-                grid-template-columns: 1fr;
+        @media print {
+            .btn-calculate {
+                display: none;
             }
         }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Supply Chain Execution (SCE)</h1>
+            <p>INPUT & CALCULATIONS - ALL FINANCIAL VALUES FROM THIS POINT FORWARD ARE IN $ SINGLE UNITS</p>
+            <div style="margin-top: 15px;">
+                <a href="index.html" style="color: white; text-decoration: none; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 8px; display: inline-block;">← Back to Assessments List</a>
+            </div>
+        </div>
 
-            .assessment-card {
-                background: #f8f9fa;
-                border-radius: 10px;
-                padding: 20px;
-                cursor: pointer;
-                transition: transform 0.2s, box-shadow 0.2s;
-                border: 2px solid transparent;
-            }
+        <div class="error" id="errorMessage"></div>
 
-        <div class="card">
-            <div class="search-bar">
-                <input type="text" id="searchInput" placeholder="Search by company name or email...">
-                <button onclick="searchAssessments()">Search</button>
-                <button onclick="loadAssessments()">Refresh</button>
+        <form id="roiForm">
+            <!-- Company Information Section -->
+            <div class="section">
+                <div class="section-header">Company Information</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 40%;">Field</th>
+                            <th style="width: 60%;">Value</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Company Name *</strong></td>
+                            <td class="input-cell">
+                                <input type="text" id="companyName" name="companyName" required placeholder="Enter company name">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Loading assessments...</p>
+            <!-- Section 1: Improved Management & Administration Productivity (Manufacturing) -->
+            <div class="section">
+                <div class="section-header">Improved Management & Administration Productivity (Back office)</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of managers, supervisors & administration</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="mfgManagers" name="mfgManagers" min="0" value="15" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="mfgManagerCost" name="mfgManagerCost" min="0" step="1000" value="62500" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total FTE cost</td>
+                            <td class="calc-cell" id="mfgTotalCost">$0</td>
+                            <td class="calc-cell" id="mfgTotalCost2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Reduction in employee time<br><span class="help-text">Due to a single consolidated system and a friendlier easier to use generation</span></td>
+                            <td class="benchmark-cell">11%</td>
+                            <td class="benchmark-cell">14%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('workforce')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="mfgAdminBenefit1">$0</td>
+                            <td class="output-cell" id="mfgAdminBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <h2>No Assessments Found</h2>
-                <p>Create your first assessment to see results here.</p>
-                <a href="index.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Create Assessment →</a>
+            <!-- Section 2: Increased Workforce Productivity -->
+            <div class="section">
+                <div class="section-header">Increased Workforce Productivity (Warehouse Floor)</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of warehouse floor FTE's (other than managers, supervisors & administration)</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="shopFloorFTEs" name="shopFloorFTEs" min="0" value="420" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="shopFloorCost" name="shopFloorCost" min="0" step="1000" value="30000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total direct warehousing labour cost per year</td>
+                            <td class="calc-cell" id="shopFloorTotal">$0</td>
+                            <td class="calc-cell" id="shopFloorTotal2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Reduction in employee time<br><span class="help-text">Due to a single consolidated system and a friendlier easier to use generation</span></td>
+                            <td class="benchmark-cell">11%</td>
+                            <td class="benchmark-cell">14%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('workforce')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="workforceBenefit1">$0</td>
+                            <td class="output-cell" id="workforceBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
-            <div id="assessmentsGrid" class="assessments-grid"></div>
+            <!-- Section 3: Improved Capacity Utilisation and Throughput -->
+            <div class="section">
+                <div class="section-header">Improved Capacity Utilisation and Throughput</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Annual Revenue</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="annualRevenue" name="annualRevenue" min="0" step="1000" value="100000000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Operating Margin / Profitability %</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="operatingMargin" name="operatingMargin" min="0" max="100" step="0.1" value="4.5" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Projected increase in revenue<br><span class="help-text">Due to improved on-time delivery performance, marketing and more responsive maintenance systems</span></td>
+                            <td class="benchmark-cell">12%</td>
+                            <td class="benchmark-cell">38%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('capacity')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="capacityBenefit1">$0</td>
+                            <td class="output-cell" id="capacityBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 4: Reduction of Scrapped Materials -->
+            <div class="section">
+                <div class="section-header">Reduction of Scrapped Materials</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Annual value of scrap</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="annualWasteCost" name="annualWasteCost" min="0" step="1000" value="500000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Projected reduction<br><span class="help-text">Due to improved set up and adherence to procedures, performance monitoring and scheduling closer making</span></td>
+                            <td class="benchmark-cell">13%</td>
+                            <td class="benchmark-cell">16%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('waste')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="wasteBenefit1">$0</td>
+                            <td class="output-cell" id="wasteBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 5: Reduced Direct Labour Costs -->
+            <div class="section">
+                <div class="section-header">Reduced Direct Labour Costs</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Number of warehouse employees (not management or administration)</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="warehouseEmployees" name="warehouseEmployees" min="0" value="400" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Average fully loaded cost per FTE</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="warehouseEmployeeCost" name="warehouseEmployeeCost" min="0" step="1000" value="30000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Total FTE cost of completing receipts, put aways, replenishments, picks, shipments, stock checks, etc.</strong></td>
+                            <td class="calc-cell" id="whEmpTotal">$0</td>
+                            <td class="calc-cell" id="whEmpTotal2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                         <!-- Activity Time Proportions -->
+                        <tr style="background: #e8f4f8;">
+                            <td colspan="5" class="label-cell"><strong>Proportion of warehouse time per activity type:</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Goods In</td>
+                            <td class="input-cell"><input type="number" id="timeGoodsIn" min="0" max="100" step="0.1" value="18.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timeGoodsIn2" min="0" max="100" step="0.1" value="18.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Put away</td>
+                            <td class="input-cell"><input type="number" id="timePutAway" min="0" max="100" step="0.1" value="7.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timePutAway2" min="0" max="100" step="0.1" value="7.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Replenishment</td>
+                            <td class="input-cell"><input type="number" id="timeReplenishment" min="0" max="100" step="0.1" value="8.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timeReplenishment2" min="0" max="100" step="0.1" value="8.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Pick</td>
+                            <td class="input-cell"><input type="number" id="timePick" min="0" max="100" step="0.1" value="42.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timePick2" min="0" max="100" step="0.1" value="42.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Loading</td>
+                            <td class="input-cell"><input type="number" id="timeLoading" min="0" max="100" step="0.1" value="10.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timeLoading2" min="0" max="100" step="0.1" value="10.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Stock Checking / PPI</td>
+                            <td class="input-cell"><input type="number" id="timeStockCheck" min="0" max="100" step="0.1" value="10.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timeStockCheck2" min="0" max="100" step="0.1" value="10.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Other Activities</td>
+                            <td class="input-cell"><input type="number" id="timeOther" min="0" max="100" step="0.1" value="5.0" style="width:70px"> %</td>
+                            <td class="input-cell"><input type="number" id="timeOther2" min="0" max="100" step="0.1" value="5.0" style="width:70px"> %</td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Total time allocation (%)</strong></td>
+                            <td class="calc-cell" id="totalTimeAlloc">100.0%</td>
+                            <td class="calc-cell" id="totalTimeAlloc2">100.0%</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        
+                        <!-- Projected Reductions -->
+                        <tr style="background: #e8f4f8;">
+                            <td colspan="5" class="label-cell"><strong>% Projected reduction:</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Goods In</td>
+                            <td class="benchmark-cell">20.0%</td>
+                            <td class="benchmark-cell">30.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('goodsIn')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Put away</td>
+                            <td class="benchmark-cell">3.5%</td>
+                            <td class="benchmark-cell">5.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('putAway')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Replenishment</td>
+                            <td class="benchmark-cell">7.0%</td>
+                            <td class="benchmark-cell">10.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('replenishment')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Pick</td>
+                            <td class="benchmark-cell">6.1%</td>
+                            <td class="benchmark-cell">9.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('pick')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Loading</td>
+                            <td class="benchmark-cell">7.0%</td>
+                            <td class="benchmark-cell">10.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('loading')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Stock Checking / PPI</td>
+                            <td class="benchmark-cell">7.0%</td>
+                            <td class="benchmark-cell">10.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('stockCheck')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Other Activities</td>
+                            <td class="benchmark-cell">3.5%</td>
+                            <td class="benchmark-cell">5.0%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('other')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Total overall saving in time (%)</strong></td>
+                            <td class="calc-cell" id="totalSavingPct">8.6%</td>
+                            <td class="calc-cell" id="totalSavingPct2">12.6%</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        
+                        <!-- Projected Savings -->
+                        <tr style="background: #e8f4f8;">
+                            <td colspan="5" class="label-cell"><strong>Projected Saving:</strong></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Goods In</td>
+                            <td class="calc-cell" id="savingGoodsIn">$0</td>
+                            <td class="calc-cell" id="savingGoodsIn2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Put away</td>
+                            <td class="calc-cell" id="savingPutAway">$0</td>
+                            <td class="calc-cell" id="savingPutAway2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Replenishment</td>
+                            <td class="calc-cell" id="savingReplenishment">$0</td>
+                            <td class="calc-cell" id="savingReplenishment2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Pick</td>
+                            <td class="calc-cell" id="savingPick">$0</td>
+                            <td class="calc-cell" id="savingPick2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Loading</td>
+                            <td class="calc-cell" id="savingLoading">$0</td>
+                            <td class="calc-cell" id="savingLoading2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Stock Checking / PPI</td>
+                            <td class="calc-cell" id="savingStockCheck">$0</td>
+                            <td class="calc-cell" id="savingStockCheck2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell" style="padding-left: 30px;">● Other Activities</td>
+                            <td class="calc-cell" id="savingOther">$0</td>
+                            <td class="calc-cell" id="savingOther2">$0</td>
+                            <td class="source-cell">Calculation</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="labourBenefit1">$0</td>
+                            <td class="output-cell" id="labourBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 7: Reduction in Transportation & Logistics Costs -->
+            <div class="section">
+                <div class="section-header">Reduction in Transportation & Logistics Costs</div>
+                <div class="section-content">
+                    <table>
+                        <tr>
+                            <th style="width: 50%;">Input Field</th>
+                            <th style="width: 15%;">Conservative</th>
+                            <th style="width: 15%;">Likely</th>
+                            <th style="width: 10%;">Data Type</th>
+                            <th style="width: 10%;">Source</th>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">Total annual transportation & logistics costs</td>
+                            <td class="input-cell" colspan="2">
+                                <input type="number" id="annualLogisticsCost" name="annualLogisticsCost" min="0" step="1000" value="2000000" required>
+                            </td>
+                            <td class="source-cell">User Input</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell">% Projected reduction<br><span class="help-text">Due to more predictable order volumes and better transport resource optimization</span></td>
+                            <td class="benchmark-cell">20%</td>
+                            <td class="benchmark-cell">40%</td>
+                            <td class="source-cell">Benchmark</td>
+                            <td class="source-cell"><a class="benchmark-link" onclick="showBenchmarkInfo('logistics')">Infor improvement benchmark</a></td>
+                        </tr>
+                        <tr>
+                            <td class="label-cell"><strong>Expected annual benefits</strong></td>
+                            <td class="output-cell" id="logisticsBenefit1">$0</td>
+                            <td class="output-cell" id="logisticsBenefit2">$0</td>
+                            <td class="source-cell">Output</td>
+                            <td class="source-cell"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <button type="button" class="btn-calculate" onclick="calculateROI()">Calculate ROI</button>
+        </form>
+
+        <!-- Results Section -->
+        <div class="results-section" id="resultsSection">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button type="button" onclick="saveAssessment()" style="background: #333; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Save Assessment</button>
+            </div>
+            <div class="section">
+                <div class="section-header">Supply Chain Execution (SCE) - Results</div>
+                <div class="section-content">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">Output (All figures are in $ Single Units)</th>
+                                <th style="width: 25%; background: #333;">Conservative Estimate</th>
+                                <th style="width: 25%; background: #666;">Likely Estimate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="total-row">
+                                <td>Total Projected Benefits</td>
+                                <td id="totalConservative" style="text-align: right;">$0</td>
+                                <td id="totalLikely" style="text-align: right;">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Improved Management & Administration Productivity (Back office)</td>
+                                <td class="value-conservative" id="result-mfgAdmin-cons">$0</td>
+                                <td class="value-likely" id="result-mfgAdmin-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Increased Workforce Productivity (Warehouse Floor)</td>
+                                <td class="value-conservative" id="result-workforce-cons">$0</td>
+                                <td class="value-likely" id="result-workforce-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Improved Capacity Utilisation and Throughput</td>
+                                <td class="value-conservative" id="result-capacity-cons">$0</td>
+                                <td class="value-likely" id="result-capacity-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Reduction of Scrapped Materials</td>
+                                <td class="value-conservative" id="result-waste-cons">$0</td>
+                                <td class="value-likely" id="result-waste-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Reduced Direct Labour Costs</td>
+                                <td class="value-conservative" id="result-labour-cons">$0</td>
+                                <td class="value-likely" id="result-labour-likely">$0</td>
+                            </tr>
+                            <tr>
+                                <td class="category-name">Reduction in Transportation & Logistics Costs</td>
+                                <td class="value-conservative" id="result-logistics-cons">$0</td>
+                                <td class="value-likely" id="result-logistics-likely">$0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Detail Modal -->
-    <div id="detailModal" class="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">×</button>
-            <div id="modalContent"></div>
+    <!-- Benchmark Modal -->
+    <div id="benchmarkModal" class="benchmark-modal">
+        <div class="benchmark-modal-content">
+            <span class="close-btn" onclick="closeBenchmarkModal()">&times;</span>
+            <div id="benchmarkContent"></div>
         </div>
     </div>
 
+    <script src="load-assessment.js"></script>
+    <script src="app-excel-style.js"></script>
     <script>
-        const API_URL = window.location.hostname === 'localhost' 
-            ? 'http://localhost:8888/.netlify/functions'
-            : '/.netlify/functions';
-
-        let allAssessments = [];
-
-        // Load assessments on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            loadAssessments();
-        });
-
-        async function loadAssessments() {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('assessmentsGrid').innerHTML = '';
-
-            try {
-                const response = await fetch(`${API_URL}/list-assessments?limit=100`);
-                const result = await response.json();
-
-                if (result.success && result.assessments.length > 0) {
-                    allAssessments = result.assessments;
-                    displayAssessments(allAssessments);
-                } else {
-                    document.getElementById('emptyState').style.display = 'block';
-                }
-            } catch (error) {
-                console.error('Error loading assessments:', error);
-                alert('Failed to load assessments. Please try again.');
-            } finally {
-                document.getElementById('loading').style.display = 'none';
+        const benchmarkData = {
+            workforce: {
+                title: "Workforce Productivity (11-14%)",
+                    content: "<h3>Workforce Productivity</h3><p><strong>Conservative: 11% | Likely: 14%</strong></p><p><strong>Source:</strong> Infor database of 500+ WMS implementations (2015-2023)</p><h4>Why These Percentages:</h4><ul><li><strong>Single Consolidated WMS:</strong> Eliminates switching between warehouse systems and spreadsheets (5-7%)</li><li><strong>Intuitive Mobile Interface:</strong> Reduces training time for warehouse staff and picking errors (3-4%)</li><li><strong>Automated Warehouse Workflows:</strong> Less manual data entry for receipts, picks, and shipments (3-5%)</li></ul><p><em>Conservative 11% = lower quartile | Likely 14% = median improvement</em></p>"
+            },
+            capacity: {
+                title: "Capacity Improvement (12-38%)",
+                content: "<h3>Capacity & Throughput</h3><p><strong>Conservative: 12% | Likely: 38%</strong></p><p><strong>Source:</strong> Revenue impact analysis from WMS deployments</p><h4>Why These Percentages:</h4><ul><li><strong>Improved Order Fulfillment:</strong> Faster picking and shipping increases throughput and customer retention (5-15%)</li><li><strong>Real-Time Inventory Visibility:</strong> Better customer service with accurate stock levels and delivery promises (3-8%)</li><li><strong>Optimized Warehouse Operations:</strong> Wave planning and slotting optimization reduces bottlenecks (4-15%)</li></ul><p><em>Wide range reflects varying warehouse sizes and order profiles</em></p>"
+            },
+            waste: {
+                title: "Waste Reduction (13-16%)",
+                content: "<h3>Waste Reduction</h3><p><strong>Conservative: 13% | Likely: 16%</strong></p><p><strong>Source:</strong> Scrap and waste metrics analysis pre/post WMS</p><h4>Why These Percentages:</h4><ul><li><strong>Improved Receiving Procedures:</strong> Standardized putaway and quality checks reduce damage (4-6%)</li><li><strong>Real-Time Inventory Tracking:</strong> FIFO/FEFO enforcement prevents expiration and obsolescence (3-5%)</li><li><strong>Better Cycle Counting:</strong> Accurate inventory reduces write-offs and shrinkage (4-5%)</li></ul><p><em>Based on actual measurements from warehouse and distribution operations</em></p>"
+            },
+            whAdmin: {
+                title: "Warehouse Admin (11-14%)",
+                content: "<h3>Warehouse Admin Productivity</h3><p><strong>Conservative: 11% | Likely: 14%</strong></p><p><strong>Source:</strong> Time-motion studies of warehouse management staff</p><h4>Why These Percentages:</h4><ul><li><strong>Automated Inventory Management:</strong> Cycle counting and real-time visibility (5-7%)</li><li><strong>Streamlined Reporting:</strong> Automated reports (3-4%)</li><li><strong>Better User Experience:</strong> Intuitive interfaces (3-3%)</li></ul><p><em>Consistent with workforce productivity improvements</em></p>"
+            },
+            labour: {
+                title: "Labour Cost Reduction (8.6-12.6%)",
+                content: "<h3>Direct Labour Costs</h3><p><strong>Conservative: 8.6% | Likely: 12.6%</strong></p><p><strong>Source:</strong> Pick rates and warehouse efficiency analysis</p><h4>Why These Percentages:</h4><ul><li><strong>Optimized Picking Paths:</strong> Directed putaway and wave-based picking reduces travel time (3-5%)</li><li><strong>RF/Mobile Scanning:</strong> Barcode verification eliminates picking errors and returns (2-3%)</li><li><strong>Warehouse Task Management:</strong> Better work allocation and labor planning (3.6-4.6%)</li></ul><p><em>Measured across distribution centers with varying automation levels</em></p>"
+            },
+            goodsIn: {
+    title: "Goods In (20-30%)",
+    content: "<h3>Goods In</h3><p><strong>20-30%</strong></p><p>ASN integration, mobile receiving, cross-docking</p>"
+},
+putAway: {
+    title: "Put Away (3.5-5%)",
+    content: "<h3>Put Away</h3><p><strong>3.5-5%</strong></p><p>Directed putaway, task interleaving, optimal slotting</p>"
+},
+replenishment: {
+    title: "Replenishment (7-10%)",
+    content: "<h3>Replenishment</h3><p><strong>7-10%</strong></p><p>Automated triggers, wave-based replenishment</p>"
+},
+pick: {
+    title: "Pick (6.1-9%)",
+    content: "<h3>Pick</h3><p><strong>6.1-9%</strong></p><p>Wave picking, zone optimization, pick path optimization</p>"
+},
+loading: {
+    title: "Loading (7-10%)",
+    content: "<h3>Loading</h3><p><strong>7-10%</strong></p><p>Staging optimization, load verification, dock scheduling</p>"
+},
+stockCheck: {
+    title: "Stock Checking (7-10%)",
+    content: "<h3>Stock Checking</h3><p><strong>7-10%</strong></p><p>Cycle counting automation, real-time inventory accuracy</p>"
+},
+other: {
+    title: "Other Activities (3.5-5%)",
+    content: "<h3>Other</h3><p><strong>3.5-5%</strong></p><p>Returns processing, kitting, value-added services</p>"
+},
+            logistics: {
+                title: "Logistics Cost Reduction (20-40%)",
+                content: "<h3>Transportation & Logistics</h3><p><strong>Conservative: 20% | Likely: 40%</strong></p><p><strong>Source:</strong> Freight and logistics cost analysis</p><h4>Why These Percentages:</h4><ul><li><strong>Load Optimization:</strong> Better truck utilization (8-15%)</li><li><strong>Predictable Volumes:</strong> Better carrier planning (7-15%)</li><li><strong>Route Optimization:</strong> Reduced miles and fuel (5-10%)</li></ul><p><em>Highest variability due to different logistics models</em></p>"
             }
-        }
+        };
 
-        function displayAssessments(assessments) {
-            const grid = document.getElementById('assessmentsGrid');
-            grid.innerHTML = '';
-
-            assessments.forEach(assessment => {
-                const card = createAssessmentCard(assessment);
-                grid.appendChild(card);
-            });
-        }
-
-        function createAssessmentCard(assessment) {
-            const card = document.createElement('div');
-            card.className = 'assessment-card';
-            card.onclick = () => showDetails(assessment);
-
-            const date = new Date(assessment.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-            });
-
-            card.innerHTML = `
-                <h3>${assessment.companyName}</h3>
-                <div class="assessment-info">
-                    <span><strong>Email:</strong> ${assessment.contactEmail}</span>
-                    <span><strong>Date:</strong> ${date}</span>
-                    <span><strong>Warehouse Employees:</strong> ${assessment.warehouseEmployees || 0}</span>
-                    <span><strong>Revenue:</strong> ${formatCurrency(assessment.annualRevenue || 0)}</span>
-                </div>
-                <div class="roi-highlight">
-                    <div class="label">Total Annual Savings</div>
-                    <div class="value">${formatCurrency(assessment.roiResults.totalAnnualSavings)}</div>
-                </div>
-            `;
-
-            return card;
-        }
-
-        function searchAssessments() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        function showBenchmarkInfo(category) {
+            const modal = document.getElementById('benchmarkModal');
+            const content = document.getElementById('benchmarkContent');
+            const data = benchmarkData[category];
             
-            if (!searchTerm) {
-                displayAssessments(allAssessments);
-                return;
-            }
-
-            const filtered = allAssessments.filter(a => 
-                a.companyName.toLowerCase().includes(searchTerm) ||
-                a.contactEmail.toLowerCase().includes(searchTerm)
-            );
-
-            if (filtered.length > 0) {
-                displayAssessments(filtered);
-            } else {
-                document.getElementById('assessmentsGrid').innerHTML = 
-                    '<div class="empty-state"><h2>No Results Found</h2><p>Try a different search term.</p></div>';
+            if (data) {
+                content.innerHTML = data.content;
+                modal.classList.add('show');
             }
         }
 
-        function showDetails(assessment) {
-            const modal = document.getElementById('detailModal');
-            const content = document.getElementById('modalContent');
-
-            const date = new Date(assessment.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            content.innerHTML = `
-                <h2 style="color: #667eea; margin-bottom: 20px;">${assessment.companyName}</h2>
-                
-                <div class="detail-section">
-                    <h3>📋 Company Information</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Contact Email</label>
-                            <value>${assessment.contactEmail}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Assessment Date</label>
-                            <value>${date}</value>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>💼 Business Metrics</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Annual Revenue</label>
-                            <value>${formatCurrency(assessment.annualRevenue || 0)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Operating Margin</label>
-                            <value>${assessment.operatingMargin || 0}%</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Warehouse Employees</label>
-                            <value>${assessment.numberOfEmployees}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Daily Orders</label>
-                            <value>${assessment.dailyOrderVolume.toLocaleString()}</value>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>📦 Operations Metrics</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Pick Accuracy</label>
-                            <value>${assessment.currentPickAccuracy}%</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Avg Pick Time</label>
-                            <value>${assessment.averagePickTime}s</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Inventory Turnover</label>
-                            <value>${assessment.inventoryTurnover}x/year</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Space Utilization</label>
-                            <value>${assessment.spaceUtilization}%</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Labor Cost</label>
-                            <value>${assessment.laborCostPercentage}%</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Overtime</label>
-                            <value>${assessment.overtimePercentage}%</value>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>💰 ROI Results</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                            <label style="color: rgba(255,255,255,0.9);">Total Annual Savings</label>
-                            <value style="color: white; font-size: 1.5rem;">${formatCurrency(assessment.roiResults.totalAnnualSavings)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Implementation Cost</label>
-                            <value>${formatCurrency(assessment.roiResults.implementationCost)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Payback Period</label>
-                            <value>${assessment.roiResults.paybackPeriod} months</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>3-Year ROI</label>
-                            <value>${assessment.roiResults.threeYearROI}%</value>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>📊 Savings Breakdown</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <label>Labor Efficiency</label>
-                            <value>${formatCurrency(assessment.roiResults.laborSavings)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Overtime Reduction</label>
-                            <value>${formatCurrency(assessment.roiResults.overtimeSavings)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Space Optimization</label>
-                            <value>${formatCurrency(assessment.roiResults.spaceSavings)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Accuracy Improvement</label>
-                            <value>${formatCurrency(assessment.roiResults.accuracyImprovement)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Inventory Optimization</label>
-                            <value>${formatCurrency(assessment.roiResults.inventorySavings)}</value>
-                        </div>
-                        <div class="detail-item">
-                            <label>Productivity Gain</label>
-                            <value>${formatCurrency(assessment.roiResults.productivityGain)}</value>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detail-section">
-                    <h3>⚠️ Challenges Identified</h3>
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                        <ul style="margin-left: 20px;">
-                            ${assessment.primaryChallenges.map(c => `<li>${c}</li>`).join('')}
-                        </ul>
-                        <p style="margin-top: 15px;"><strong>Technology Gaps:</strong></p>
-                        <p style="color: #666;">${assessment.technologyGaps}</p>
-                    </div>
-                </div>
-            `;
-
-            modal.classList.add('show');
+        function closeBenchmarkModal() {
+            document.getElementById('benchmarkModal').classList.remove('show');
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('show');
-        }
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(amount);
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('detailModal').addEventListener('click', (e) => {
-            if (e.target.id === 'detailModal') {
-                closeModal();
+        window.onclick = function(event) {
+            const modal = document.getElementById('benchmarkModal');
+            if (event.target === modal) {
+                closeBenchmarkModal();
             }
-        });
-
-        // Search on Enter key
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchAssessments();
-            }
-        });
+        }
     </script>
 </body>
 </html>

@@ -44,23 +44,84 @@ function updateCalculatedFields() {
     document.getElementById('wasteBenefit1').textContent = formatCurrency(annualWasteCost * 0.13);
     document.getElementById('wasteBenefit2').textContent = formatCurrency(annualWasteCost * 0.16);
     
-    // Warehouse Admin
-    const warehouseManagers = parseFloat(document.getElementById('warehouseManagers').value) || 0;
-    const warehouseManagerCost = parseFloat(document.getElementById('warehouseManagerCost').value) || 0;
-    const whMgrTotal = warehouseManagers * warehouseManagerCost;
-    document.getElementById('whMgrTotal').textContent = formatCurrency(whMgrTotal);
-    document.getElementById('whMgrTotal2').textContent = formatCurrency(whMgrTotal);
-    document.getElementById('whAdminBenefit1').textContent = formatCurrency(whMgrTotal * 0.11);
-    document.getElementById('whAdminBenefit2').textContent = formatCurrency(whMgrTotal * 0.14);
-    
-    // Direct Labour
+    // Direct Labour - Activity Based
     const warehouseEmployees = parseFloat(document.getElementById('warehouseEmployees').value) || 0;
     const warehouseEmployeeCost = parseFloat(document.getElementById('warehouseEmployeeCost').value) || 0;
     const whEmpTotal = warehouseEmployees * warehouseEmployeeCost;
     document.getElementById('whEmpTotal').textContent = formatCurrency(whEmpTotal);
     document.getElementById('whEmpTotal2').textContent = formatCurrency(whEmpTotal);
-    document.getElementById('labourBenefit1').textContent = formatCurrency(whEmpTotal * 0.086);
-    document.getElementById('labourBenefit2').textContent = formatCurrency(whEmpTotal * 0.126);
+    
+    // Get activity time percentages
+    const timeGoodsIn = parseFloat(document.getElementById('timeGoodsIn').value) || 0;
+    const timePutAway = parseFloat(document.getElementById('timePutAway').value) || 0;
+    const timeReplenishment = parseFloat(document.getElementById('timeReplenishment').value) || 0;
+    const timePick = parseFloat(document.getElementById('timePick').value) || 0;
+    const timeLoading = parseFloat(document.getElementById('timeLoading').value) || 0;
+    const timeStockCheck = parseFloat(document.getElementById('timeStockCheck').value) || 0;
+    const timeOther = parseFloat(document.getElementById('timeOther').value) || 0;
+    
+    const timeGoodsIn2 = parseFloat(document.getElementById('timeGoodsIn2').value) || 0;
+    const timePutAway2 = parseFloat(document.getElementById('timePutAway2').value) || 0;
+    const timeReplenishment2 = parseFloat(document.getElementById('timeReplenishment2').value) || 0;
+    const timePick2 = parseFloat(document.getElementById('timePick2').value) || 0;
+    const timeLoading2 = parseFloat(document.getElementById('timeLoading2').value) || 0;
+    const timeStockCheck2 = parseFloat(document.getElementById('timeStockCheck2').value) || 0;
+    const timeOther2 = parseFloat(document.getElementById('timeOther2').value) || 0;
+    
+    // Calculate total time allocation
+    const totalTime = timeGoodsIn + timePutAway + timeReplenishment + timePick + timeLoading + timeStockCheck + timeOther;
+    const totalTime2 = timeGoodsIn2 + timePutAway2 + timeReplenishment2 + timePick2 + timeLoading2 + timeStockCheck2 + timeOther2;
+    document.getElementById('totalTimeAlloc').textContent = totalTime.toFixed(1) + '%';
+    document.getElementById('totalTimeAlloc2').textContent = totalTime2.toFixed(1) + '%';
+    
+    // Calculate activity savings (Conservative)
+    const savingGoodsIn = whEmpTotal * (timeGoodsIn / 100) * 0.20;
+    const savingPutAway = whEmpTotal * (timePutAway / 100) * 0.035;
+    const savingReplenishment = whEmpTotal * (timeReplenishment / 100) * 0.07;
+    const savingPick = whEmpTotal * (timePick / 100) * 0.061;
+    const savingLoading = whEmpTotal * (timeLoading / 100) * 0.07;
+    const savingStockCheck = whEmpTotal * (timeStockCheck / 100) * 0.07;
+    const savingOther = whEmpTotal * (timeOther / 100) * 0.035;
+    
+    // Calculate activity savings (Likely)
+    const savingGoodsIn2 = whEmpTotal * (timeGoodsIn2 / 100) * 0.30;
+    const savingPutAway2 = whEmpTotal * (timePutAway2 / 100) * 0.05;
+    const savingReplenishment2 = whEmpTotal * (timeReplenishment2 / 100) * 0.10;
+    const savingPick2 = whEmpTotal * (timePick2 / 100) * 0.09;
+    const savingLoading2 = whEmpTotal * (timeLoading2 / 100) * 0.10;
+    const savingStockCheck2 = whEmpTotal * (timeStockCheck2 / 100) * 0.10;
+    const savingOther2 = whEmpTotal * (timeOther2 / 100) * 0.05;
+    
+    // Display individual activity savings
+    document.getElementById('savingGoodsIn').textContent = formatCurrency(savingGoodsIn);
+    document.getElementById('savingPutAway').textContent = formatCurrency(savingPutAway);
+    document.getElementById('savingReplenishment').textContent = formatCurrency(savingReplenishment);
+    document.getElementById('savingPick').textContent = formatCurrency(savingPick);
+    document.getElementById('savingLoading').textContent = formatCurrency(savingLoading);
+    document.getElementById('savingStockCheck').textContent = formatCurrency(savingStockCheck);
+    document.getElementById('savingOther').textContent = formatCurrency(savingOther);
+    
+    document.getElementById('savingGoodsIn2').textContent = formatCurrency(savingGoodsIn2);
+    document.getElementById('savingPutAway2').textContent = formatCurrency(savingPutAway2);
+    document.getElementById('savingReplenishment2').textContent = formatCurrency(savingReplenishment2);
+    document.getElementById('savingPick2').textContent = formatCurrency(savingPick2);
+    document.getElementById('savingLoading2').textContent = formatCurrency(savingLoading2);
+    document.getElementById('savingStockCheck2').textContent = formatCurrency(savingStockCheck2);
+    document.getElementById('savingOther2').textContent = formatCurrency(savingOther2);
+    
+    // Calculate total savings
+    const totalLabourSavings = savingGoodsIn + savingPutAway + savingReplenishment + savingPick + savingLoading + savingStockCheck + savingOther;
+    const totalLabourSavings2 = savingGoodsIn2 + savingPutAway2 + savingReplenishment2 + savingPick2 + savingLoading2 + savingStockCheck2 + savingOther2;
+    
+    // Calculate total saving percentages
+    const totalSavingPct = (totalLabourSavings / whEmpTotal) * 100;
+    const totalSavingPct2 = (totalLabourSavings2 / whEmpTotal) * 100;
+    document.getElementById('totalSavingPct').textContent = totalSavingPct.toFixed(1) + '%';
+    document.getElementById('totalSavingPct2').textContent = totalSavingPct2.toFixed(1) + '%';
+    
+    // Display total labour benefits
+    document.getElementById('labourBenefit1').textContent = formatCurrency(totalLabourSavings);
+    document.getElementById('labourBenefit2').textContent = formatCurrency(totalLabourSavings2);
     
     // Logistics
     const annualLogisticsCost = parseFloat(document.getElementById('annualLogisticsCost').value) || 0;
@@ -77,8 +138,6 @@ function calculateROI() {
     const annualRevenue = parseFloat(document.getElementById('annualRevenue').value) || 0;
     const operatingMargin = parseFloat(document.getElementById('operatingMargin').value) || 0;
     const annualWasteCost = parseFloat(document.getElementById('annualWasteCost').value) || 0;
-    const warehouseManagers = parseFloat(document.getElementById('warehouseManagers').value) || 0;
-    const warehouseManagerCost = parseFloat(document.getElementById('warehouseManagerCost').value) || 0;
     const warehouseEmployees = parseFloat(document.getElementById('warehouseEmployees').value) || 0;
     const warehouseEmployeeCost = parseFloat(document.getElementById('warehouseEmployeeCost').value) || 0;
     const annualLogisticsCost = parseFloat(document.getElementById('annualLogisticsCost').value) || 0;
@@ -99,20 +158,54 @@ function calculateROI() {
     const wasteCons = annualWasteCost * 0.13;
     const wasteLikely = annualWasteCost * 0.16;
     
-    const whMgrTotal = warehouseManagers * warehouseManagerCost;
-    const whAdminCons = whMgrTotal * 0.11;
-    const whAdminLikely = whMgrTotal * 0.14;
-    
+    // Activity-based labour calculations
     const whEmpTotal = warehouseEmployees * warehouseEmployeeCost;
-    const labourCons = whEmpTotal * 0.086;
-    const labourLikely = whEmpTotal * 0.126;
+    
+    // Get activity time percentages
+    const timeGoodsIn = parseFloat(document.getElementById('timeGoodsIn').value) || 0;
+    const timePutAway = parseFloat(document.getElementById('timePutAway').value) || 0;
+    const timeReplenishment = parseFloat(document.getElementById('timeReplenishment').value) || 0;
+    const timePick = parseFloat(document.getElementById('timePick').value) || 0;
+    const timeLoading = parseFloat(document.getElementById('timeLoading').value) || 0;
+    const timeStockCheck = parseFloat(document.getElementById('timeStockCheck').value) || 0;
+    const timeOther = parseFloat(document.getElementById('timeOther').value) || 0;
+    
+    const timeGoodsIn2 = parseFloat(document.getElementById('timeGoodsIn2').value) || 0;
+    const timePutAway2 = parseFloat(document.getElementById('timePutAway2').value) || 0;
+    const timeReplenishment2 = parseFloat(document.getElementById('timeReplenishment2').value) || 0;
+    const timePick2 = parseFloat(document.getElementById('timePick2').value) || 0;
+    const timeLoading2 = parseFloat(document.getElementById('timeLoading2').value) || 0;
+    const timeStockCheck2 = parseFloat(document.getElementById('timeStockCheck2').value) || 0;
+    const timeOther2 = parseFloat(document.getElementById('timeOther2').value) || 0;
+    
+    // Calculate activity savings (Conservative)
+    const savingGoodsIn = whEmpTotal * (timeGoodsIn / 100) * 0.20;
+    const savingPutAway = whEmpTotal * (timePutAway / 100) * 0.035;
+    const savingReplenishment = whEmpTotal * (timeReplenishment / 100) * 0.07;
+    const savingPick = whEmpTotal * (timePick / 100) * 0.061;
+    const savingLoading = whEmpTotal * (timeLoading / 100) * 0.07;
+    const savingStockCheck = whEmpTotal * (timeStockCheck / 100) * 0.07;
+    const savingOther = whEmpTotal * (timeOther / 100) * 0.035;
+    
+    // Calculate activity savings (Likely)
+    const savingGoodsIn2 = whEmpTotal * (timeGoodsIn2 / 100) * 0.30;
+    const savingPutAway2 = whEmpTotal * (timePutAway2 / 100) * 0.05;
+    const savingReplenishment2 = whEmpTotal * (timeReplenishment2 / 100) * 0.10;
+    const savingPick2 = whEmpTotal * (timePick2 / 100) * 0.09;
+    const savingLoading2 = whEmpTotal * (timeLoading2 / 100) * 0.10;
+    const savingStockCheck2 = whEmpTotal * (timeStockCheck2 / 100) * 0.10;
+    const savingOther2 = whEmpTotal * (timeOther2 / 100) * 0.05;
+    
+    // Total labour savings
+    const labourCons = savingGoodsIn + savingPutAway + savingReplenishment + savingPick + savingLoading + savingStockCheck + savingOther;
+    const labourLikely = savingGoodsIn2 + savingPutAway2 + savingReplenishment2 + savingPick2 + savingLoading2 + savingStockCheck2 + savingOther2;
     
     const logisticsCons = annualLogisticsCost * 0.20;
     const logisticsLikely = annualLogisticsCost * 0.40;
     
     // Calculate totals
-    const totalConservative = mfgAdminCons + workforceCons + capacityCons + wasteCons + whAdminCons + labourCons + logisticsCons;
-    const totalLikely = mfgAdminLikely + workforceLikely + capacityLikely + wasteLikely + whAdminLikely + labourLikely + logisticsLikely;
+    const totalConservative = mfgAdminCons + workforceCons + capacityCons + wasteCons + labourCons + logisticsCons;
+    const totalLikely = mfgAdminLikely + workforceLikely + capacityLikely + wasteLikely + labourLikely + logisticsLikely;
     
     // Display results
     document.getElementById('totalConservative').textContent = formatCurrency(totalConservative);
@@ -130,9 +223,6 @@ function calculateROI() {
     document.getElementById('result-waste-cons').textContent = formatCurrency(wasteCons);
     document.getElementById('result-waste-likely').textContent = formatCurrency(wasteLikely);
     
-    document.getElementById('result-whAdmin-cons').textContent = formatCurrency(whAdminCons);
-    document.getElementById('result-whAdmin-likely').textContent = formatCurrency(whAdminLikely);
-    
     document.getElementById('result-labour-cons').textContent = formatCurrency(labourCons);
     document.getElementById('result-labour-likely').textContent = formatCurrency(labourLikely);
     
@@ -145,10 +235,12 @@ function calculateROI() {
     // Scroll to results
     document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     
-    // Prepare data for API submission
-    const assessmentData = {
-        companyName: 'Excel Style Assessment',
-        contactEmail: 'user@example.com',
+    // Get company info from form
+    const companyName = document.getElementById('companyName').value.trim();
+    
+    // Store data globally for save button
+    window.assessmentData = {
+        companyName: companyName || 'Unknown Company',
         annualRevenue,
         operatingMargin,
         mfgManagers,
@@ -156,22 +248,18 @@ function calculateROI() {
         shopFloorFTEs,
         shopFloorCost,
         annualWasteCost,
-        warehouseManagers,
-        warehouseManagerCost,
         warehouseEmployees,
         warehouseEmployeeCost,
         annualLogisticsCost,
         primaryChallenges: ['ROI Assessment'],
-        technologyGaps: 'Excel-style assessment'
+        technologyGaps: 'Supply Chain Execution ROI Assessment'
     };
     
-    // Save to database (optional)
-    saveToDatabase(assessmentData, {
+    window.roiResults = {
         mfgAdminSavings: Math.round(mfgAdminCons),
         workforceSavings: Math.round(workforceCons),
         capacitySavings: Math.round(capacityCons),
         wasteSavings: Math.round(wasteCons),
-        warehouseAdminSavings: Math.round(whAdminCons),
         labourSavings: Math.round(labourCons),
         logisticsSavings: Math.round(logisticsCons),
         totalAnnualSavings: Math.round(totalConservative),
@@ -180,7 +268,6 @@ function calculateROI() {
             workforceSavings: Math.round(workforceLikely),
             capacitySavings: Math.round(capacityLikely),
             wasteSavings: Math.round(wasteLikely),
-            warehouseAdminSavings: Math.round(whAdminLikely),
             labourSavings: Math.round(labourLikely),
             logisticsSavings: Math.round(logisticsLikely),
             totalAnnualSavings: Math.round(totalLikely)
@@ -188,32 +275,56 @@ function calculateROI() {
         implementationCost: 0,
         paybackPeriod: 0,
         threeYearROI: 0
-    });
+    };
 }
 
-async function saveToDatabase(data, roiResults) {
-    const API_URL = window.location.hostname === 'localhost' 
-        ? 'http://localhost:8888/.netlify/functions'
-        : '/.netlify/functions';
+function saveAssessment() {
+    if (!window.assessmentData || !window.roiResults) {
+        alert('Please calculate ROI first');
+        return;
+    }
+    saveToDatabase(window.assessmentData, window.roiResults, window.currentAssessmentId);
+}
+
+async function saveToDatabase(data, roiResults, assessmentId) {
+    const API_URL = '/.netlify/functions';
     
     try {
-        const response = await fetch(`${API_URL}/create-assessment`, {
-            method: 'POST',
+        // Determine if we're creating or updating
+        const isUpdate = !!assessmentId;
+        const endpoint = isUpdate ? 'update-assessment' : 'create-assessment';
+        const method = 'POST';
+        
+        const payload = {
+            ...data,
+            roiResults
+        };
+        
+        if (isUpdate) {
+            payload.id = assessmentId;
+        }
+        
+        const response = await fetch(`${API_URL}/${endpoint}`, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                ...data,
-                roiResults
-            })
+            body: JSON.stringify(payload)
         });
         
         if (response.ok) {
             const result = await response.json();
-            console.log('Assessment saved:', result.assessmentId);
+            const message = isUpdate ? 'Assessment updated successfully!' : 'Assessment saved successfully!';
+            const id = result.assessmentId || assessmentId;
+            alert(`✅ ${message}\n\nAssessment ID: ${id}`);
+            window.location.href = 'index.html';
+        } else {
+            const error = await response.json();
+            alert('Failed to save: ' + (error.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error saving assessment:', error);
+        alert('Error saving assessment. Please try again.');
     }
 }
 
