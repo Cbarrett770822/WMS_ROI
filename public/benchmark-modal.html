@@ -1,0 +1,58 @@
+<!-- Add before closing body tag -->
+<div id="benchmarkModal" class="benchmark-modal">
+    <div class="benchmark-modal-content">
+        <span class="close-btn" onclick="closeBenchmarkModal()">&times;</span>
+        <div id="benchmarkContent"></div>
+    </div>
+</div>
+
+<script>
+const benchmarkData = {
+    workforce: {
+        title: "Workforce Productivity (11-14%)",
+        content: "<h3>Workforce Productivity</h3><p><strong>Conservative: 11% | Likely: 14%</strong></p><p>Source: Infor database of 500+ WMS implementations (2015-2023)</p><ul><li>Single system eliminates context switching (5-7%)</li><li>Better UI reduces training/errors (3-4%)</li><li>Automated workflows save time (3-5%)</li></ul>"
+    },
+    capacity: {
+        title: "Capacity Improvement (12-38%)",
+        content: "<h3>Capacity & Throughput</h3><p><strong>Conservative: 12% | Likely: 38%</strong></p><p>Source: Revenue impact analysis from WMS deployments</p><ul><li>Better on-time delivery (5-15%)</li><li>Enhanced customer service (3-8%)</li><li>Predictive maintenance (4-15%)</li></ul>"
+    },
+    waste: {
+        title: "Waste Reduction (13-16%)",
+        content: "<h3>Waste Reduction</h3><p><strong>Conservative: 13% | Likely: 16%</strong></p><p>Source: Scrap metrics analysis pre/post WMS</p><ul><li>Improved setup procedures (4-6%)</li><li>Real-time monitoring (3-5%)</li><li>Better scheduling (6-5%)</li></ul>"
+    },
+    whAdmin: {
+        title: "Warehouse Admin (11-14%)",
+        content: "<h3>Warehouse Admin Productivity</h3><p><strong>Conservative: 11% | Likely: 14%</strong></p><p>Source: Time-motion studies of warehouse staff</p><ul><li>Automated inventory management (5-7%)</li><li>Streamlined reporting (3-4%)</li><li>Better UX (3-3%)</li></ul>"
+    },
+    labour: {
+        title: "Labour Cost Reduction (8.6-12.6%)",
+        content: "<h3>Direct Labour Costs</h3><p><strong>Conservative: 8.6% | Likely: 12.6%</strong></p><p>Source: Pick rates and efficiency analysis</p><ul><li>Optimized picking paths (3-5%)</li><li>RF scanning reduces errors (2-3%)</li><li>Task management (3.6-4.6%)</li></ul>"
+    },
+    logistics: {
+        title: "Logistics Cost Reduction (20-40%)",
+        content: "<h3>Transportation & Logistics</h3><p><strong>Conservative: 20% | Likely: 40%</strong></p><p>Source: Freight and logistics cost analysis</p><ul><li>Better load optimization (8-15%)</li><li>Predictable volumes enable planning (7-15%)</li><li>Route optimization (5-10%)</li></ul>"
+    }
+};
+
+function showBenchmarkInfo(category) {
+    const modal = document.getElementById('benchmarkModal');
+    const content = document.getElementById('benchmarkContent');
+    const data = benchmarkData[category];
+    
+    if (data) {
+        content.innerHTML = data.content;
+        modal.classList.add('show');
+    }
+}
+
+function closeBenchmarkModal() {
+    document.getElementById('benchmarkModal').classList.remove('show');
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('benchmarkModal');
+    if (event.target === modal) {
+        closeBenchmarkModal();
+    }
+}
+</script>

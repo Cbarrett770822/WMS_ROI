@@ -16,54 +16,35 @@ const assessmentSchema = new mongoose.Schema({
   // Business Overview
   annualRevenue: {
     type: Number,
-    required: true
+    required: false
   },
-  warehouseSquareFeet: {
+  operatingMargin: {
     type: Number,
-    required: true
-  },
-  numberOfEmployees: {
-    type: Number,
-    required: true
-  },
-  dailyOrderVolume: {
-    type: Number,
-    required: true
+    required: false
   },
   
-  // Warehouse Operations
-  currentPickAccuracy: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 100
-  },
-  averagePickTime: {
-    type: Number,
-    required: true
-  },
-  inventoryTurnover: {
-    type: Number,
-    required: true
-  },
-  spaceUtilization: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 100
-  },
-  laborCostPercentage: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 100
-  },
-  overtimePercentage: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 100
-  },
+  // ROI Form Fields
+  mfgManagers: Number,
+  mfgManagerCost: Number,
+  shopFloorFTEs: Number,
+  shopFloorCost: Number,
+  annualWasteCost: Number,
+  warehouseManagers: Number,
+  warehouseManagerCost: Number,
+  warehouseEmployees: Number,
+  warehouseEmployeeCost: Number,
+  annualLogisticsCost: Number,
+  
+  // Old Questionnaire Fields (optional for backward compatibility)
+  warehouseSquareFeet: Number,
+  numberOfEmployees: Number,
+  dailyOrderVolume: Number,
+  currentPickAccuracy: Number,
+  averagePickTime: Number,
+  inventoryTurnover: Number,
+  spaceUtilization: Number,
+  laborCostPercentage: Number,
+  overtimePercentage: Number,
   
   // Pain Points
   primaryChallenges: {

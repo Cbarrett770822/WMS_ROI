@@ -1,9 +1,7 @@
 const { connectToDatabase } = require('./utils/db');
 const Assessment = require('./models/Assessment');
-const { calculateWMSROI } = require('./utils/roiCalculator');
 
 exports.handler = async (event, context) => {
-  // Set CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -11,7 +9,6 @@ exports.handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
-  // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: '' };
   }
@@ -28,51 +25,50 @@ exports.handler = async (event, context) => {
     await connectToDatabase();
 
     const data = JSON.parse(event.body);
+    const { id, ...updateData } = data;
 
-    // Validate required fields
-    const requiredFields = ['companyName', 'contactEmail'];
-
-    const missingFields = requiredFields.filter(field => !data[field]);
-    if (missingFields.length > 0) {
+    if (!id) {
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({
-          error: 'Missing required fields',
-          missingFields
-        })
+        body: JSON.stringify({ error: 'Assessment ID is required' })
       };
     }
 
-    // Use provided roiResults or calculate if not provided
-    let roiResults = data.roiResults;
+    const assessment = await Assessment.findByIdAndUpdate(
+      id,
+      {
+        ...updateData,
+        updatedAt: Date.now()
+      },
+      { new: true, runValidators: true }
+    );
 
-    // Create assessment with ROI results
-    const assessment = new Assessment({
-      ...data,
-      roiResults,
-      status: 'completed'
-    });
-
-    await assessment.save();
+    if (!assessment) {
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: 'Assessment not found' })
+      };
+    }
 
     return {
-      statusCode: 201,
+      statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
         assessmentId: assessment._id,
-        roiResults: assessment.roiResults
+        message: 'Assessment updated successfully'
       })
     };
 
   } catch (error) {
-    console.error('Error creating assessment:', error);
+    console.error('Error updating assessment:', error);
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
-        error: 'Failed to create assessment',
+        error: 'Failed to update assessment',
         message: error.message
       })
     };

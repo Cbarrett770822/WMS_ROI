@@ -1,0 +1,16 @@
+LABOUR SECTION UPDATE REQUIRED
+
+The Direct Labour section needs manual update to match the image provided.
+
+Current: Simple section with single % reduction (8.6% / 12.6%)
+
+Required: Detailed breakdown with:
+1. Activity time proportions (7 activities: Goods In 18%, Put away 7%, Replenishment 8%, Pick 42%, Loading 10%, Stock Check 10%, Other 5%)
+2. Projected reductions per activity (varying percentages)
+3. Individual savings calculations
+4. Total: 8.6% conservative, 12.6% likely
+
+File to update: roi-form.html lines 536-549
+JavaScript file: app-excel-style.js (needs new calculation logic)
+
+Due to size constraints, manual editing required or contact developer for implementation.

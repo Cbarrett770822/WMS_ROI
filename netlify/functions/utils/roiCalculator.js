@@ -1,126 +1,213 @@
 // WMS ROI Calculation Engine
-// Based on industry benchmarks and best practices
+// Based on Infor WMS Benefit Analysis Methodology
+// Implements 7-category benefit calculation with Conservative and Likely estimates
 
 function calculateWMSROI(assessmentData) {
+  // Extract all input data with defaults
   const {
-    annualRevenue,
-    warehouseSquareFeet,
-    numberOfEmployees,
-    dailyOrderVolume,
-    currentPickAccuracy,
-    averagePickTime,
-    inventoryTurnover,
-    spaceUtilization,
-    laborCostPercentage,
-    overtimePercentage
+    // Business metrics
+    annualRevenue = 0,
+    operatingMargin = 0,
+    
+    // Manufacturing metrics
+    mfgManagers = 0,
+    mfgManagerCost = 0,
+    shopFloorFTEs = 0,
+    shopFloorCost = 0,
+    annualWasteCost = 0,
+    
+    // Warehouse metrics
+    warehouseManagers = 0,
+    warehouseManagerCost = 0,
+    warehouseEmployees = 0,
+    warehouseEmployeeCost = 0,
+    annualLogisticsCost = 0,
+    
+    // Legacy fields (for backward compatibility)
+    warehouseSquareFeet = 0,
+    numberOfEmployees = 0,
+    dailyOrderVolume = 0,
+    currentPickAccuracy = 0,
+    averagePickTime = 0,
+    inventoryTurnover = 0,
+    spaceUtilization = 0,
+    laborCostPercentage = 0,
+    overtimePercentage = 0
   } = assessmentData;
 
-  // Industry benchmarks
+  // Infor WMS Benchmark Percentages
   const BENCHMARKS = {
-    targetPickAccuracy: 99.5,
-    targetPickTime: 45, // seconds per pick
-    targetSpaceUtilization: 85,
-    targetInventoryTurnover: 8,
-    targetOvertimePercentage: 5,
-    avgLaborCostPerEmployee: 45000,
-    avgCostPerSquareFoot: 8
+    // Manufacturing Admin Productivity
+    mfgAdminConservative: 0.11,    // 11%
+    mfgAdminLikely: 0.14,          // 14%
+    
+    // Workforce Productivity
+    workforceConservative: 0.11,   // 11%
+    workforceLikely: 0.14,         // 14%
+    
+    // Capacity & Throughput
+    capacityConservative: 0.12,    // 12%
+    capacityLikely: 0.38,          // 38%
+    
+    // Waste Reduction
+    wasteConservative: 0.13,       // 13%
+    wasteLikely: 0.16,             // 16%
+    
+    // Warehouse Admin Productivity
+    whAdminConservative: 0.11,     // 11%
+    whAdminLikely: 0.14,           // 14%
+    
+    // Direct Labour Costs
+    labourConservative: 0.086,     // 8.6%
+    labourLikely: 0.126,           // 12.6%
+    
+    // Transportation & Logistics
+    logisticsConservative: 0.20,   // 20%
+    logisticsLikely: 0.40          // 40%
   };
 
-  // Calculate annual labor cost
-  const annualLaborCost = numberOfEmployees * BENCHMARKS.avgLaborCostPerEmployee;
-  const laborCostFromRevenue = annualRevenue * (laborCostPercentage / 100);
-  const totalLaborCost = Math.max(annualLaborCost, laborCostFromRevenue);
+  // ============================================
+  // CALCULATE CONSERVATIVE ESTIMATES
+  // ============================================
+  
+  // 1. Manufacturing Admin Productivity (Conservative)
+  const mfgTotalCost = mfgManagers * mfgManagerCost;
+  const mfgAdminSavingsConservative = Math.round(mfgTotalCost * BENCHMARKS.mfgAdminConservative);
+  
+  // 2. Workforce Productivity (Conservative)
+  const shopFloorTotalCost = shopFloorFTEs * shopFloorCost;
+  const workforceSavingsConservative = Math.round(shopFloorTotalCost * BENCHMARKS.workforceConservative);
+  
+  // 3. Capacity & Throughput (Conservative)
+  const marginDecimal = operatingMargin / 100;
+  const capacitySavingsConservative = Math.round(annualRevenue * marginDecimal * BENCHMARKS.capacityConservative);
+  
+  // 4. Waste Reduction (Conservative)
+  const wasteSavingsConservative = Math.round(annualWasteCost * BENCHMARKS.wasteConservative);
+  
+  // 5. Warehouse Admin Productivity (Conservative)
+  const whMgrTotalCost = warehouseManagers * warehouseManagerCost;
+  const warehouseAdminSavingsConservative = Math.round(whMgrTotalCost * BENCHMARKS.whAdminConservative);
+  
+  // 6. Direct Labour Costs (Conservative)
+  const whEmpTotalCost = warehouseEmployees * warehouseEmployeeCost;
+  const labourSavingsConservative = Math.round(whEmpTotalCost * BENCHMARKS.labourConservative);
+  
+  // 7. Transportation & Logistics (Conservative)
+  const logisticsSavingsConservative = Math.round(annualLogisticsCost * BENCHMARKS.logisticsConservative);
+  
+  // Total Conservative Savings
+  const totalAnnualSavingsConservative = 
+    mfgAdminSavingsConservative +
+    workforceSavingsConservative +
+    capacitySavingsConservative +
+    wasteSavingsConservative +
+    warehouseAdminSavingsConservative +
+    labourSavingsConservative +
+    logisticsSavingsConservative;
 
-  // 1. LABOR EFFICIENCY SAVINGS
-  const currentPicksPerHour = 3600 / averagePickTime;
-  const targetPicksPerHour = 3600 / BENCHMARKS.targetPickTime;
-  const productivityImprovement = ((targetPicksPerHour - currentPicksPerHour) / currentPicksPerHour) * 100;
-  const laborSavings = totalLaborCost * (productivityImprovement / 100) * 0.7; // 70% realization
+  // ============================================
+  // CALCULATE LIKELY ESTIMATES
+  // ============================================
+  
+  // 1. Manufacturing Admin Productivity (Likely)
+  const mfgAdminSavingsLikely = Math.round(mfgTotalCost * BENCHMARKS.mfgAdminLikely);
+  
+  // 2. Workforce Productivity (Likely)
+  const workforceSavingsLikely = Math.round(shopFloorTotalCost * BENCHMARKS.workforceLikely);
+  
+  // 3. Capacity & Throughput (Likely)
+  const capacitySavingsLikely = Math.round(annualRevenue * marginDecimal * BENCHMARKS.capacityLikely);
+  
+  // 4. Waste Reduction (Likely)
+  const wasteSavingsLikely = Math.round(annualWasteCost * BENCHMARKS.wasteLikely);
+  
+  // 5. Warehouse Admin Productivity (Likely)
+  const warehouseAdminSavingsLikely = Math.round(whMgrTotalCost * BENCHMARKS.whAdminLikely);
+  
+  // 6. Direct Labour Costs (Likely)
+  const labourSavingsLikely = Math.round(whEmpTotalCost * BENCHMARKS.labourLikely);
+  
+  // 7. Transportation & Logistics (Likely)
+  const logisticsSavingsLikely = Math.round(annualLogisticsCost * BENCHMARKS.logisticsLikely);
+  
+  // Total Likely Savings
+  const totalAnnualSavingsLikely = 
+    mfgAdminSavingsLikely +
+    workforceSavingsLikely +
+    capacitySavingsLikely +
+    wasteSavingsLikely +
+    warehouseAdminSavingsLikely +
+    labourSavingsLikely +
+    logisticsSavingsLikely;
 
-  // 2. OVERTIME REDUCTION
-  const overtimeReduction = Math.max(0, overtimePercentage - BENCHMARKS.targetOvertimePercentage);
-  const overtimeSavings = totalLaborCost * (overtimeReduction / 100) * 0.5; // OT premium
-
-  // 3. SPACE OPTIMIZATION SAVINGS
-  const spaceImprovement = Math.max(0, BENCHMARKS.targetSpaceUtilization - spaceUtilization);
-  const potentialSpaceReclaimed = warehouseSquareFeet * (spaceImprovement / 100);
-  const spaceSavings = potentialSpaceReclaimed * BENCHMARKS.avgCostPerSquareFoot;
-
-  // 4. ACCURACY IMPROVEMENT SAVINGS
-  const accuracyGap = Math.max(0, BENCHMARKS.targetPickAccuracy - currentPickAccuracy);
-  const errorReduction = accuracyGap / 100;
-  const annualOrders = dailyOrderVolume * 250; // 250 working days
-  const avgCostPerError = 25; // Industry average
-  const accuracySavings = annualOrders * errorReduction * avgCostPerError;
-
-  // 5. INVENTORY OPTIMIZATION SAVINGS
-  const inventoryGap = Math.max(0, BENCHMARKS.targetInventoryTurnover - inventoryTurnover);
-  const avgInventoryValue = annualRevenue * 0.25; // Typical inventory as % of revenue
-  const carryingCostRate = 0.25; // 25% annual carrying cost
-  const inventorySavings = (avgInventoryValue / inventoryTurnover) * (inventoryGap / BENCHMARKS.targetInventoryTurnover) * carryingCostRate;
-
-  // 6. THROUGHPUT IMPROVEMENT
-  const throughputGain = productivityImprovement > 0 ? (dailyOrderVolume * (productivityImprovement / 100)) : 0;
-  const revenuePerOrder = annualRevenue / (dailyOrderVolume * 250);
-  const throughputRevenue = throughputGain * 250 * revenuePerOrder * 0.3; // 30% margin
-
-  // TOTAL ANNUAL SAVINGS
-  const totalAnnualSavings = 
-    laborSavings + 
-    overtimeSavings + 
-    spaceSavings + 
-    accuracySavings + 
-    inventorySavings + 
-    throughputRevenue;
-
+  // ============================================
   // IMPLEMENTATION COST ESTIMATION
-  // Based on total employees and revenue
-  const totalEmployees = (mfgManagers || 0) + (shopFloorFTEs || 0) + (warehouseManagers || 0) + (warehouseEmployees || 0);
+  // ============================================
+  
+  const totalEmployees = mfgManagers + shopFloorFTEs + warehouseManagers + warehouseEmployees;
   const baseImplementationCost = 75000;
   const employeeMultiplier = Math.max(1, totalEmployees / 100);
-  const revenueMultiplier = Math.max(1, (annualRevenue || 0) / 50000000);
-  const implementationCost = baseImplementationCost * employeeMultiplier * revenueMultiplier;
+  const revenueMultiplier = Math.max(1, annualRevenue / 50000000);
+  const implementationCost = Math.round(baseImplementationCost * employeeMultiplier * revenueMultiplier);
 
-  // PAYBACK PERIOD (in months) - using conservative estimate
-  const paybackPeriod = totalAnnualSavings > 0 ? (implementationCost / totalAnnualSavings) * 12 : 0;
+  // ============================================
+  // FINANCIAL METRICS (Conservative)
+  // ============================================
+  
+  const paybackPeriod = totalAnnualSavingsConservative > 0 ? 
+    Math.round((implementationCost / totalAnnualSavingsConservative) * 12 * 10) / 10 : 0;
+  
+  const threeYearSavingsConservative = totalAnnualSavingsConservative * 3;
+  const threeYearROI = implementationCost > 0 ? 
+    Math.round(((threeYearSavingsConservative - implementationCost) / implementationCost) * 100 * 10) / 10 : 0;
 
-  // 3-YEAR ROI - using conservative estimate
-  const threeYearSavings = totalAnnualSavings * 3;
-  const threeYearROI = implementationCost > 0 ? ((threeYearSavings - implementationCost) / implementationCost) * 100 : 0;
+  // ============================================
+  // FINANCIAL METRICS (Likely)
+  // ============================================
+  
+  const likelyPaybackPeriod = totalAnnualSavingsLikely > 0 ? 
+    Math.round((implementationCost / totalAnnualSavingsLikely) * 12 * 10) / 10 : 0;
+  
+  const threeYearSavingsLikely = totalAnnualSavingsLikely * 3;
+  const likelyThreeYearROI = implementationCost > 0 ? 
+    Math.round(((threeYearSavingsLikely - implementationCost) / implementationCost) * 100 * 10) / 10 : 0;
 
+  // ============================================
+  // RETURN RESULTS
+  // ============================================
+  
   return {
     // Conservative Estimate (Primary)
-    mfgAdminSavings: estimates.conservative.mfgAdminSavings,
-    workforceSavings: estimates.conservative.workforceSavings,
-    capacitySavings: estimates.conservative.capacitySavings,
-    wasteSavings: estimates.conservative.wasteSavings,
-    warehouseAdminSavings: estimates.conservative.warehouseAdminSavings,
-    labourSavings: estimates.conservative.labourSavings,
-    logisticsSavings: estimates.conservative.logisticsSavings,
-    totalAnnualSavings: estimates.conservative.totalAnnualSavings,
+    mfgAdminSavings: mfgAdminSavingsConservative,
+    workforceSavings: workforceSavingsConservative,
+    capacitySavings: capacitySavingsConservative,
+    wasteSavings: wasteSavingsConservative,
+    warehouseAdminSavings: warehouseAdminSavingsConservative,
+    labourSavings: labourSavingsConservative,
+    logisticsSavings: logisticsSavingsConservative,
+    totalAnnualSavings: totalAnnualSavingsConservative,
     
     // Likely Estimate (Optimistic)
     likely: {
-      mfgAdminSavings: estimates.likely.mfgAdminSavings,
-      workforceSavings: estimates.likely.workforceSavings,
-      capacitySavings: estimates.likely.capacitySavings,
-      wasteSavings: estimates.likely.wasteSavings,
-      warehouseAdminSavings: estimates.likely.warehouseAdminSavings,
-      labourSavings: estimates.likely.labourSavings,
-      logisticsSavings: estimates.likely.logisticsSavings,
-      totalAnnualSavings: estimates.likely.totalAnnualSavings
+      mfgAdminSavings: mfgAdminSavingsLikely,
+      workforceSavings: workforceSavingsLikely,
+      capacitySavings: capacitySavingsLikely,
+      wasteSavings: wasteSavingsLikely,
+      warehouseAdminSavings: warehouseAdminSavingsLikely,
+      labourSavings: labourSavingsLikely,
+      logisticsSavings: logisticsSavingsLikely,
+      totalAnnualSavings: totalAnnualSavingsLikely
     },
     
-    // Financial Metrics
-    implementationCost: Math.round(implementationCost),
-    paybackPeriod: Math.round(paybackPeriod * 10) / 10,
-    threeYearROI: Math.round(threeYearROI * 10) / 10,
+    // Financial Metrics (Conservative)
+    implementationCost: implementationCost,
+    paybackPeriod: paybackPeriod,
+    threeYearROI: threeYearROI,
     
-    // Likely scenario financial metrics
-    likelyPaybackPeriod: estimates.likely.totalAnnualSavings > 0 ? 
-      Math.round((implementationCost / estimates.likely.totalAnnualSavings) * 12 * 10) / 10 : 0,
-    likelyThreeYearROI: implementationCost > 0 ? 
-      Math.round((((estimates.likely.totalAnnualSavings * 3) - implementationCost) / implementationCost) * 100 * 10) / 10 : 0
+    // Financial Metrics (Likely)
+    likelyPaybackPeriod: likelyPaybackPeriod,
+    likelyThreeYearROI: likelyThreeYearROI
   };
 }
 

@@ -1,0 +1,32 @@
+LABOUR SECTION - Replace lines 536-549 in roi-form.html
+
+Add after line 535 (Total FTE cost row):
+
+1. Activity Time Inputs (8 rows):
+   - Header: "Proportion of warehouse time per activity type:"
+   - Goods In: 18% (id: timeGoodsIn, timeGoodsIn2)
+   - Put away: 7% (id: timePutAway, timePutAway2)
+   - Replenishment: 8% (id: timeReplenishment, timeReplenishment2)
+   - Pick: 42% (id: timePick, timePick2)
+   - Loading: 10% (id: timeLoading, timeLoading2)
+   - Stock Check: 10% (id: timeStockCheck, timeStockCheck2)
+   - Other: 5% (id: timeOther, timeOther2)
+   - Total: 100% (id: totalTimeAlloc, totalTimeAlloc2)
+
+2. Reduction Benchmarks (8 rows):
+   - Header: "% Projected reduction:"
+   - Goods In: 20% / 30%
+   - Put away: 3.5% / 5%
+   - Replenishment: 7% / 10%
+   - Pick: 6.1% / 9%
+   - Loading: 7% / 10%
+   - Stock Check: 7% / 10%
+   - Other: 3.5% / 5%
+   - Total: 8.6% / 12.6% (id: totalSavingPct, totalSavingPct2)
+
+3. Savings Calculations (8 rows):
+   - Header: "Projected Saving:"
+   - 7 activity rows (ids: savingGoodsIn, savingPutAway, savingReplenishment, savingPick, savingLoading, savingStockCheck, savingOther)
+   - Expected benefits row (id: labourBenefit1, labourBenefit2)
+
+JavaScript needed in app-excel-style.js to calculate activity-based savings.

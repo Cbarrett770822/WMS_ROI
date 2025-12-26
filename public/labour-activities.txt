@@ -1,0 +1,19 @@
+I need to add these rows after the Total FTE cost row:
+
+1. Section header: "Proportion of warehouse time per activity type:"
+2. Activity inputs (7 rows):
+   - Goods In: 18%
+   - Put away: 7%
+   - Replenishment: 8%
+   - Pick: 42%
+   - Loading: 10%
+   - Stock Checking/PPI: 10%
+   - Other: 5%
+3. Total time allocation: 100%
+4. Section header: "% Projected reduction:"
+5. Reduction benchmarks (7 rows matching activities)
+6. Total overall saving
+7. Projected Savings (7 rows with calculations)
+8. Expected annual benefits
+
+Due to size, I'll need to update the JavaScript to handle these new calculations.

@@ -144,8 +144,8 @@ function calculateROI() {
     // Scroll to results
     document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
     
-    // Prepare data for API submission
-    const assessmentData = {
+    // Store data globally for save button
+    window.assessmentData = {
         companyName,
         contactEmail,
         annualRevenue,
@@ -164,8 +164,7 @@ function calculateROI() {
         technologyGaps: 'Supply Chain Execution ROI Assessment'
     };
     
-    // Save to database (optional)
-    saveToDatabase(assessmentData, {
+    window.roiResults = {
         mfgAdminSavings: Math.round(mfgAdminCons),
         workforceSavings: Math.round(workforceCons),
         capacitySavings: Math.round(capacityCons),
@@ -187,7 +186,15 @@ function calculateROI() {
         implementationCost: 0,
         paybackPeriod: 0,
         threeYearROI: 0
-    });
+    };
+}
+
+function saveAssessment() {
+    if (!window.assessmentData || !window.roiResults) {
+        alert('Please calculate ROI first');
+        return;
+    }
+    saveToDatabase(window.assessmentData, window.roiResults);
 }
 
 async function saveToDatabase(data, roiResults) {
@@ -209,17 +216,18 @@ async function saveToDatabase(data, roiResults) {
             const result = await response.json();
             console.log('Assessment saved:', result.assessmentId);
             
-            // Show success message
-            const successMsg = document.createElement('div');
-            successMsg.style.cssText = 'background: #d4edda; color: #155724; padding: 15px; margin: 20px; border-radius: 8px; text-align: center; font-weight: bold;';
-            successMsg.innerHTML = `✅ Assessment saved successfully for ${data.companyName}! <br><small>Assessment ID: ${result.assessmentId}</small>`;
-            document.getElementById('resultsSection').insertBefore(successMsg, document.getElementById('resultsSection').firstChild);
+            alert(`✅ Assessment saved successfully for ${data.companyName}!\n\nAssessment ID: ${result.assessmentId}\n\nYou can view it in the assessments list.`);
             
             // Store assessment ID
             sessionStorage.setItem('lastAssessmentId', result.assessmentId);
+            
+            // Optionally redirect to listing page
+            if (confirm('Go to assessments list?')) {
+                window.location.href = 'index.html';
+            }
         } else {
             const error = await response.json();
-            showError('Failed to save assessment: ' + (error.error || 'Unknown error'));
+            alert('Failed to save assessment: ' + (error.error || 'Unknown error'));
         }
     } catch (error) {
         console.error('Error saving assessment:', error);
