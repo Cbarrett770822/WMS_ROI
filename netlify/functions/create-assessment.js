@@ -30,7 +30,7 @@ exports.handler = async (event, context) => {
     const data = JSON.parse(event.body);
 
     // Validate required fields
-    const requiredFields = ['companyName', 'contactEmail'];
+    const requiredFields = ['companyName'];
 
     const missingFields = requiredFields.filter(field => !data[field]);
     if (missingFields.length > 0) {

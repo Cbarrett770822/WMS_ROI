@@ -8,7 +8,7 @@ const assessmentSchema = new mongoose.Schema({
   },
   contactEmail: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
     lowercase: true
   },
