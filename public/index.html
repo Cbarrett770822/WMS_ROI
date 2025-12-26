@@ -282,6 +282,7 @@
 
         <div class="nav-links">
             <a href="roi-form.html" style="background: #333; font-weight: bold; font-size: 1.1rem; padding: 15px 30px;">+ New ROI Assessment</a>
+            <a href="#" onclick="logout(); return false;" style="background: #dc3545;">Logout</a>
         </div>
 
         <div class="card">
@@ -314,13 +315,15 @@
         </div>
     </div>
 
+    <script src="auth.js"></script>
     <script>
         const API_URL = '/.netlify/functions';
 
         let allAssessments = [];
 
-        // Load assessments on page load
+        // Check authentication on page load
         window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
             loadAssessments();
         });
 

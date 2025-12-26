@@ -28,6 +28,7 @@
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -38,6 +39,24 @@
         .header p {
             font-size: 0.9rem;
             opacity: 0.9;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .logout-btn:hover {
+            background: #c82333;
         }
 
         .section {
@@ -273,6 +292,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <a href="#" onclick="logout(); return false;" class="logout-btn">Logout</a>
             <h1>Supply Chain Execution (SCE)</h1>
             <p>INPUT & CALCULATIONS - ALL FINANCIAL VALUES FROM THIS POINT FORWARD ARE IN $ SINGLE UNITS</p>
             <div style="margin-top: 15px;">
@@ -900,6 +920,12 @@ other: {
                 closeBenchmarkModal();
             }
         }
+
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
     </script>
+    <script src="auth.js"></script>
 </body>
 </html>
