@@ -48,12 +48,18 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     console.error('Error listing assessments:', error);
+    console.error('Error stack:', error.stack);
+    console.error('MongoDB URI exists:', !!process.env.MONGODB_URI);
+    console.error('MongoDB URI prefix:', process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 20) : 'MISSING');
+    
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
         error: 'Failed to list assessments',
-        message: error.message
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        mongoConfigured: !!process.env.MONGODB_URI
       })
     };
   }
