@@ -126,11 +126,11 @@ async function generatePDFReport(event) {
         
         doc.setFontSize(10);
         doc.setFont(undefined, 'normal');
-        doc.text(Company: , margin, yPos);
+        doc.text(`Company: ${data.companyName}`, margin, yPos);
         yPos += 6;
-        doc.text(Contact: , margin, yPos);
+        doc.text(`Contact: ${data.contactEmail}`, margin, yPos);
         yPos += 6;
-        doc.text(Report Date: , margin, yPos);
+        doc.text(`Report Date: ${new Date().toLocaleDateString()}`, margin, yPos);
         yPos += 15;
         
         // ===== PAGE 2: DETAILED RESULTS =====
@@ -485,7 +485,7 @@ async function generatePDFReport(event) {
         doc.setFont(undefined, 'italic');
         doc.setTextColor(128, 128, 128);
         doc.text('This assessment is based on industry benchmarks and actual customer results. Individual results may vary based on specific operational characteristics.', pageWidth / 2, yPos, { align: 'center' });
-        doc.text(Generated:  | Contact: , pageWidth / 2, yPos + 4, { align: 'center' });
+        doc.text(`Generated: ${new Date().toLocaleString()} | Contact: ${data.contactEmail}`, pageWidth / 2, yPos + 4, { align: 'center' });
         
         // Save the PDF
         const fileName = `Infor_WMS_ROI_Assessment_${data.companyName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
