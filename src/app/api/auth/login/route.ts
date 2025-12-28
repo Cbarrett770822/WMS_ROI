@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import connectToDatabase from '@/lib/mongodb';
+import { connectToDatabase } from '../../../../../wms-shared-auth/src/utils/db';
+import { generateToken } from '../../../../../wms-shared-auth/src/utils/jwt';
 import User from '@/models/User';
-import { generateToken } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +51,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check app permission for ROI Assessment
+    if (!user.hasAppAccess('roi-assessment')) {
+      return NextResponse.json(
+        { message: 'Access denied to ROI Assessment application' },
+        { status: 403 }
+      );
+    }
+
     // Update last login time
     user.lastLogin = new Date();
     await user.save();
@@ -73,6 +81,7 @@ export async function POST(req: NextRequest) {
     // Return user info (without sensitive data)
     return NextResponse.json({
       message: 'Login successful',
+      token: token, // Also return token for localStorage
       user: {
         id: user._id,
         username: user.username,
@@ -80,6 +89,7 @@ export async function POST(req: NextRequest) {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        appPermissions: user.appPermissions,
       },
     });
   } catch (error) {

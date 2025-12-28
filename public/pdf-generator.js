@@ -11,7 +11,7 @@ async function loadJsPDF() {
     });
 }
 
-async function generatePDFReport() {
+async function generatePDFReport(event) {
     if (!window.assessmentData || !window.roiResults) {
         alert('Please calculate ROI first');
         return;
@@ -19,10 +19,12 @@ async function generatePDFReport() {
 
     try {
         // Show loading message
-        const btn = event.target;
-        const originalText = btn.textContent;
-        btn.textContent = 'Generating PDF...';
-        btn.disabled = true;
+        const btn = event ? event.target : null;
+        const originalText = btn ? btn.textContent : '';
+        if (btn) {
+            btn.textContent = 'Generating PDF...';
+            btn.disabled = true;
+        }
 
         // Load jsPDF library dynamically
         if (typeof window.jspdf === 'undefined') {
@@ -486,12 +488,14 @@ async function generatePDFReport() {
         doc.text(Generated:  | Contact: , pageWidth / 2, yPos + 4, { align: 'center' });
         
         // Save the PDF
-        const fileName = Infor_WMS_ROI_Assessment__.pdf;
+        const fileName = `Infor_WMS_ROI_Assessment_${data.companyName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
         
         // Restore button
-        btn.textContent = originalText;
-        btn.disabled = false;
+        if (btn) {
+            btn.textContent = originalText;
+            btn.disabled = false;
+        }
         
         alert('PDF report generated successfully!');
         
