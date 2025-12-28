@@ -77,7 +77,7 @@ async function generatePDFReport(event) {
         doc.setFont(undefined, 'bold');
         doc.text('Infor WMS', pageWidth / 2, 35, { align: 'center' });
         doc.setFontSize(22);
-        doc.text('ROI Assessment Report', pageWidth / 2, 50, { align: 'center' });
+        doc.text('Savings & Benefits Assessment', pageWidth / 2, 50, { align: 'center' });
         
         doc.setFontSize(14);
         doc.setFont(undefined, 'normal');
@@ -288,7 +288,7 @@ async function generatePDFReport(event) {
             doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
             doc.text(exp.title, margin + 2, yPos + 5.5);
-            yPos += 10;
+            yPos += 12;
             
             doc.setTextColor(0, 0, 0);
             
@@ -300,8 +300,9 @@ async function generatePDFReport(event) {
             
             // Benefits
             doc.setFont(undefined, 'bold');
+            doc.setFontSize(10);
             doc.text('Key Benefits:', margin, yPos);
-            yPos += 5;
+            yPos += 6;
             
             doc.setFont(undefined, 'normal');
             doc.setFontSize(9);
@@ -317,12 +318,12 @@ async function generatePDFReport(event) {
             doc.setFont(undefined, 'bold');
             doc.setFontSize(10);
             doc.text('Operational Impact:', margin, yPos);
-            yPos += 5;
+            yPos += 6;
             
             doc.setFont(undefined, 'normal');
             doc.setFontSize(9);
             yPos += addWrappedText(exp.impact, margin, yPos, contentWidth, 9);
-            yPos += 8;
+            yPos += 10;
         });
         
         // ===== PAGE: INFOR WMS VALUE PROPOSITION =====
@@ -385,7 +386,7 @@ async function generatePDFReport(event) {
             doc.setFillColor(240, 240, 240);
             doc.rect(margin, yPos - 2, contentWidth, 7, 'F');
             doc.text(feature.title, margin + 2, yPos + 3);
-            yPos += 10;
+            yPos += 12;
             
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
@@ -396,87 +397,6 @@ async function generatePDFReport(event) {
                 yPos += 1;
             });
             yPos += 5;
-        });
-        
-        // ===== FINAL PAGE: IMPLEMENTATION APPROACH =====
-        doc.addPage();
-        yPos = 20;
-        
-        doc.setFontSize(18);
-        doc.setFont(undefined, 'bold');
-        doc.text('Implementation Approach', margin, yPos);
-        yPos += 12;
-        
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        const implText = 'Infor WMS implementations follow a proven methodology designed to minimize risk and accelerate time-to-value:';
-        yPos += addWrappedText(implText, margin, yPos, contentWidth, 10);
-        yPos += 8;
-        
-        const phases = [
-            {
-                phase: 'Phase 1: Discovery & Design (4-6 weeks)',
-                activities: ['Process mapping and gap analysis', 'System configuration design', 'Integration architecture', 'Change management planning']
-            },
-            {
-                phase: 'Phase 2: Build & Configure (6-8 weeks)',
-                activities: ['System configuration', 'Integration development', 'Data migration', 'User acceptance testing']
-            },
-            {
-                phase: 'Phase 3: Training & Go-Live (2-4 weeks)',
-                activities: ['End-user training', 'Pilot operations', 'Cutover execution', 'Hypercare support']
-            },
-            {
-                phase: 'Phase 4: Optimization (Ongoing)',
-                activities: ['Performance monitoring', 'Process refinement', 'Advanced feature adoption', 'Continuous improvement']
-            }
-        ];
-        
-        phases.forEach(phase => {
-            checkPageBreak(30);
-            
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.text(phase.phase, margin, yPos);
-            yPos += 6;
-            
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            phase.activities.forEach(activity => {
-                doc.text('•', margin + 3, yPos);
-                doc.text(activity, margin + 7, yPos);
-                yPos += 5;
-            });
-            yPos += 3;
-        });
-        
-        yPos += 10;
-        checkPageBreak(30);
-        
-        // Next Steps
-        doc.setFillColor(51, 51, 51);
-        doc.rect(margin, yPos, contentWidth, 8, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text('Next Steps', margin + 2, yPos + 5.5);
-        yPos += 12;
-        
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'normal');
-        const nextSteps = [
-            'Schedule a detailed discovery session to validate assumptions',
-            'Conduct site visit to observe current operations',
-            'Develop detailed implementation roadmap and timeline',
-            'Prepare formal proposal with investment details',
-            'Arrange reference calls with similar implementations'
-        ];
-        
-        nextSteps.forEach(step => {
-            doc.text('1.', margin + 2, yPos);
-            yPos += addWrappedText(step, margin + 8, yPos, contentWidth - 8, 10);
-            yPos += 2;
         });
         
         // Footer on last page
