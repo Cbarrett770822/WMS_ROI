@@ -776,8 +776,9 @@
 
         <!-- Results Section -->
         <div class="results-section" id="resultsSection">
-            <div style="text-align: center; margin-bottom: 20px;">
+            <div style="text-align: center; margin-bottom: 20px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                 <button type="button" onclick="saveAssessment()" style="background: #333; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Save Assessment</button>
+                <button type="button" onclick="generatePDFReport()" style="background: #dc3545; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">Export PDF Report</button>
             </div>
             <div class="section">
                 <div class="section-header">Supply Chain Execution (SCE) - Results</div>
@@ -927,5 +928,6 @@ other: {
         });
     </script>
     <script src="auth.js"></script>
+    <script src="pdf-generator.js"></script>
 </body>
 </html>
