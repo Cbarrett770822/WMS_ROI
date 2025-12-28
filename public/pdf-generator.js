@@ -128,8 +128,6 @@ async function generatePDFReport(event) {
         doc.setFont(undefined, 'normal');
         doc.text(`Company: ${data.companyName}`, margin, yPos);
         yPos += 6;
-        doc.text(`Contact: ${data.contactEmail}`, margin, yPos);
-        yPos += 6;
         doc.text(`Report Date: ${new Date().toLocaleDateString()}`, margin, yPos);
         yPos += 15;
         
@@ -405,7 +403,7 @@ async function generatePDFReport(event) {
         doc.setFont(undefined, 'italic');
         doc.setTextColor(128, 128, 128);
         doc.text('This assessment is based on industry benchmarks and actual customer results. Individual results may vary based on specific operational characteristics.', pageWidth / 2, yPos, { align: 'center' });
-        doc.text(`Generated: ${new Date().toLocaleString()} | Contact: ${data.contactEmail}`, pageWidth / 2, yPos + 4, { align: 'center' });
+        doc.text(`Generated: ${new Date().toLocaleString()}`, pageWidth / 2, yPos + 4, { align: 'center' });
         
         // Save the PDF
         const fileName = `Infor_WMS_Savings_Benefits_Assessment_${data.companyName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
