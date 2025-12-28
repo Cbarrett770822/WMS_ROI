@@ -1,4 +1,4 @@
-﻿// PDF Generator for WMS ROI Assessment
+﻿// PDF Generator for WMS Savings & Benefits Assessment
 // Comprehensive report with explanations and impact analysis
 
 async function loadJsPDF() {
@@ -13,7 +13,7 @@ async function loadJsPDF() {
 
 async function generatePDFReport(event) {
     if (!window.assessmentData || !window.roiResults) {
-        alert('Please calculate ROI first');
+        alert('Please calculate Savings & Benefits first');
         return;
     }
 
@@ -139,7 +139,7 @@ async function generatePDFReport(event) {
         
         doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
-        doc.text('Detailed ROI Analysis', margin, yPos);
+        doc.text('Detailed Savings & Benefits Analysis', margin, yPos);
         yPos += 10;
         
         // Results Table
@@ -196,7 +196,7 @@ async function generatePDFReport(event) {
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(18);
         doc.setFont(undefined, 'bold');
-        doc.text('ROI Methodology & Benchmarks', margin, yPos);
+        doc.text('Savings & Benefits Methodology & Benchmarks', margin, yPos);
         yPos += 12;
         
         doc.setFontSize(10);
@@ -408,7 +408,7 @@ async function generatePDFReport(event) {
         doc.text(`Generated: ${new Date().toLocaleString()} | Contact: ${data.contactEmail}`, pageWidth / 2, yPos + 4, { align: 'center' });
         
         // Save the PDF
-        const fileName = `Infor_WMS_ROI_Assessment_${data.companyName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+        const fileName = `Infor_WMS_Savings_Benefits_Assessment_${data.companyName.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
         doc.save(fileName);
         
         // Restore button

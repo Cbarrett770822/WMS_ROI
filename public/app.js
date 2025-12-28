@@ -1,4 +1,4 @@
-// Excel-Style ROI Calculator
+// Excel-Style Savings & Benefits Calculator
 // Matches the Infor WMS Benefit Analysis Excel structure
 
 // Update calculated fields in real-time
@@ -160,8 +160,8 @@ function calculateROI() {
         warehouseEmployees,
         warehouseEmployeeCost,
         annualLogisticsCost,
-        primaryChallenges: ['ROI Assessment'],
-        technologyGaps: 'Supply Chain Execution ROI Assessment'
+        primaryChallenges: ['Savings & Benefits Assessment'],
+        technologyGaps: 'Supply Chain Execution Savings & Benefits Assessment'
     };
     
     window.roiResults = {
@@ -191,7 +191,7 @@ function calculateROI() {
 
 function saveAssessment() {
     if (!window.assessmentData || !window.roiResults) {
-        alert('Please calculate ROI first');
+        alert('Please calculate Savings & Benefits first');
         return;
     }
     saveToDatabase(window.assessmentData, window.roiResults);
